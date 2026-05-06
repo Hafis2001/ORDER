@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 24,
+    paddingBottom: 100,
   },
   header: {
     marginBottom: 32,

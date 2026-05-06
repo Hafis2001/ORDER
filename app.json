@@ -4,13 +4,13 @@
     "slug": "golden-rain-est",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "icon": "./assets/appicon.jpeg",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/image.jpeg",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
@@ -18,14 +18,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/image.jpeg",
+        "backgroundColor": "#FFFFFF"
       },
-      "package": "com.hafis.goldenrainest",
-      "edgeToEdgeEnabled": true
+      "package": "com.IMCBS.goldenrainest",
+      "edgeToEdgeEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/image.jpeg"
     },
     "extra": {
       "eas": {
