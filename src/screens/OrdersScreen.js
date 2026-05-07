@@ -27,7 +27,7 @@ function OrderCard({ order, onViewDetails }) {
       <View style={styles.cardHeader}>
         <View style={styles.orderIdWrap}>
           <Package size={16} color="#8E24AA" />
-          <Text style={styles.orderId}>{order.id}</Text>
+          <Text style={styles.orderId} numberOfLines={1} ellipsizeMode="tail">{order.id}</Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
           {getStatusIcon(order.status, statusColor)}
@@ -86,7 +86,6 @@ export default function OrdersScreen({ navigation }) {
           const data = await response.json();
           
           // Filter by the logged in customer's code
-          // We check for 'customer', 'customer_code', or 'customer_id' to be safe
           const customerData = user?.code 
             ? data.filter(order => 
                 order.customer_code === user.code || 
@@ -95,37 +94,34 @@ export default function OrdersScreen({ navigation }) {
               ) 
             : data;
 
-          // Group by order_ref
-          const grouped = customerData.reduce((acc, curr) => {
-            if (!acc[curr.order_ref]) {
-              // Format date nicely
-              const d = new Date(curr.created_at);
-              const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-              
-              acc[curr.order_ref] = {
-                id: curr.order_ref,
-                date: dateStr,
-                status: curr.status_display || curr.status,
-                items: 0,
-                totalQuantity: 0,
-                expectedDelivery: curr.status_display || 'Processing',
-                timestamp: d.getTime(),
-                itemsList: []
+          const ordersArray = customerData.map(batch => {
+            const d = new Date(batch.created_at);
+            const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            let totalQuantity = 0;
+            const itemsList = (batch.items || []).map(item => {
+              totalQuantity += (item.quantity || 0);
+              return {
+                name: item.product_name,
+                brand: item.product_brand,
+                qty: item.quantity,
+                unit: item.unit_display || item.unit || 'Kg',
+                remarks: item.remarks
               };
-            }
-            acc[curr.order_ref].items += 1;
-            acc[curr.order_ref].totalQuantity += (curr.quantity || 0);
-            acc[curr.order_ref].itemsList.push({
-              name: curr.product_name,
-              brand: curr.product_brand,
-              qty: curr.quantity,
-              unit: curr.unit_display || curr.unit || 'Kg',
-              remarks: curr.remarks
             });
-            return acc;
-          }, {});
 
-          const ordersArray = Object.values(grouped).sort((a, b) => b.timestamp - a.timestamp);
+            return {
+              id: batch.order_ref || batch.batch_ref,
+              date: dateStr,
+              status: batch.status_display || batch.status,
+              items: itemsList.length,
+              totalQuantity: totalQuantity,
+              expectedDelivery: batch.status_display || 'Processing',
+              timestamp: d.getTime(),
+              itemsList
+            };
+          }).sort((a, b) => b.timestamp - a.timestamp);
+
           setOrders(ordersArray);
         }
       } catch (error) {
@@ -265,11 +261,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
+    marginRight: 10,
   },
   orderId: {
     fontSize: 15,
     fontWeight: '800',
     color: '#1A2A3A',
+    flexShrink: 1,
   },
   statusBadge: {
     flexDirection: 'row',

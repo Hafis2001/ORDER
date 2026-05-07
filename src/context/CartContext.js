@@ -76,10 +76,10 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setCartItems([]);
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.qty, 0);
+  const totalItems = cartItems.reduce((sum, item) => sum + parseFloat(item.qty || 0), 0);
   
   const totalPrice = cartItems.reduce((sum, item) => {
-    return sum + (parseFloat(item.price || 0) * item.qty);
+    return sum + (parseFloat(item.price || 0) * parseFloat(item.qty || 0));
   }, 0);
 
   // Helper to get quantity of a specific item+unit
@@ -98,7 +98,7 @@ export const CartProvider = ({ children }) => {
   const getProductTotalQty = (productId) => {
     return cartItems
       .filter(item => item.id === productId)
-      .reduce((sum, item) => sum + item.qty, 0);
+      .reduce((sum, item) => sum + parseFloat(item.qty || 0), 0);
   };
 
   return (

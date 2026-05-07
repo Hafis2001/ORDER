@@ -31,12 +31,14 @@ function CartQtyInput({ item }) {
   }, [item.qty]);
 
   const handleEndEditing = () => {
-    const parsed = parseFloat(localQty);
-    if (isNaN(parsed) || parsed <= 0) {
+    const val = localQty.trim();
+    const parsed = parseFloat(val);
+    if (val === '' || isNaN(parsed) || parsed <= 0) {
       // Revert or remove
       setLocalQty(String(item.qty));
     } else {
-      updateItemQty(item.id, item.unit, parsed);
+      // Pass the raw string val to preserve trailing zeros if any
+      updateItemQty(item.id, item.unit, val);
     }
   };
 
@@ -393,39 +395,34 @@ export default function CartScreen({ navigation }) {
     }
 
     try {
-      // The API expects a single object per request, so we POST each item individually
-      const requests = cartItems.map(async (item) => {
-        const payload = {
+      const payload = {
+        items: cartItems.map(item => ({
           product_code: item.id,
-          quantity: Math.round(item.qty), // Backend requires an integer
-          unit: item.unit,
-          remarks: item.remarks || '',
           product_name: item.name,
-          product_brand: item.brand || ''
-        };
+          product_brand: item.brand || '',
+          quantity: item.qty,
+          unit: item.unit
+        }))
+      };
 
-        const response = await fetch('https://gold.imcbs.com/api/orders/place/', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          console.warn(`Failed to place order for ${item.name}:`, errText);
-          throw new Error('Non-OK status');
-        }
-        return response.json();
+      const response = await fetch('https://gold.imcbs.com/api/orders/place-batch/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
       });
 
-      await Promise.all(requests);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn('Failed to place order:', errText);
+        throw new Error('Non-OK status');
+      }
     } catch (error) {
       console.error('Error placing order:', error);
-      Alert.alert('Error', 'There was an issue placing some items in your order. Please check your order history.');
-      // Continue to show success anyway for the items that did go through, or you can abort early.
+      Alert.alert('Error', 'There was an issue placing your order. Please try again.');
+      return;
     }
 
     setShowSuccess(true);

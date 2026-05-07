@@ -4,7 +4,7 @@
     "slug": "golden-rain-est",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/appicon.jpeg",
+    "icon": "./assets/appiconnew.jpeg",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hafis.goldenrainest"
+      "bundleIdentifier": "com.IMCBS.goldenrainest"
     },
     "android": {
       "adaptiveIcon": {
