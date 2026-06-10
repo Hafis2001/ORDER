@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   StyleSheet, Text, View, FlatList,
   TouchableOpacity, Image, TextInput, Alert,
@@ -19,7 +19,7 @@ const VEGETABLES = [
   { id: '8', name: 'Cucumber', weight: '500g / Box', image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?q=80&w=400', stock: 'In Stock' },
 ];
 
-function ItemRow({ item }) {
+const ItemRow = React.memo(function ItemRow({ item, onPress }) {
   const { setItemQty, getItemQty, isProductInCart, getProductTotalQty } = useCart();
   const [inputOpen, setInputOpen] = useState(false);
   const [unit, setUnit] = useState('Kg');
@@ -56,21 +56,25 @@ function ItemRow({ item }) {
 
   return (
     <View style={[styles.card, inCart && styles.cardInCart]}>
-      {/* Left: Product Image */}
-      <View>
-        <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <TouchableOpacity style={{ flex: 1, flexDirection: inputOpen ? 'column' : 'row' }} onPress={onPress} activeOpacity={0.9}>
+      {/* Image Container */}
+      <View style={inputOpen ? { width: '100%', height: 100 } : { width: 100, height: 110 }}>
+        <Image
+          source={{ uri: item.image }}
+          style={styles.cardImage}
+          resizeMode="cover"
+        />
         {inCart && (
           <View style={styles.inCartBadge}>
             <ShoppingCart size={10} color="#FFF" />
-            <Text style={styles.inCartText}>{totalQtyInCart}</Text>
+            <Text style={styles.inCartText}>{Number(totalQtyInCart || 0).toFixed(3)}</Text>
           </View>
         )}
       </View>
 
-      {/* Center: Product Info */}
+      {/* Bottom: info */}
       <View style={styles.cardBody}>
         <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-        <Text style={styles.itemWeight}>{item.weight}</Text>
         <View style={[
           styles.stockBadge,
           { backgroundColor: item.stock === 'In Stock' ? '#E8F8EF' : '#FDECEA' }
@@ -83,6 +87,7 @@ function ItemRow({ item }) {
           </Text>
         </View>
       </View>
+      </TouchableOpacity>
 
       {/* Right: + button OR inline input panel */}
       {inputOpen ? (
@@ -144,15 +149,22 @@ function ItemRow({ item }) {
       )}
     </View>
   );
-}
+}, (prevProps, nextProps) => prevProps.item.id === nextProps.item.id);
 
 export default function VegetablesListScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { productCount } = useCart();
   const [search, setSearch] = useState('');
 
   const filtered = VEGETABLES.filter(v =>
     v.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const renderItem = useCallback(({ item }) => (
+    <ItemRow item={item} onPress={() => navigation.navigate('ItemDetail', { item })} />
+  ), [navigation]);
+
+  const keyExtractor = useCallback(item => item.id.toString(), []);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -166,6 +178,11 @@ export default function VegetablesListScreen({ navigation }) {
         <Text style={styles.headerTitle}> Products</Text>
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
           <ShoppingCart size={22} color="#FFF" />
+          {productCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeTxt}>{productCount > 99 ? '99+' : productCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -184,11 +201,15 @@ export default function VegetablesListScreen({ navigation }) {
       {/* List */}
       <FlatList
         data={filtered}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => <ItemRow item={item} />}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
     </View>
   );
@@ -204,6 +225,13 @@ const styles = StyleSheet.create({
   },
   headerBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '800', color: '#FFF' },
+  cartBadge: {
+    position: 'absolute', top: 2, right: 2,
+    backgroundColor: '#FF4D4D', width: 16, height: 16,
+    borderRadius: 8, justifyContent: 'center', alignItems: 'center',
+    borderWidth: 1.5, borderColor: '#FFF',
+  },
+  cartBadgeTxt: { color: '#FFF', fontSize: 8, fontWeight: '900' },
 
   // Search
   searchWrap: {
@@ -217,15 +245,15 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, marginLeft: 8, fontSize: 14, color: '#333' },
 
   // List
-  list: { paddingHorizontal: 14, paddingBottom: 30 },
+  list: { paddingHorizontal: 14, paddingBottom: 140 },
   separator: { height: 12 },
 
-  // Card â€” use flexDirection row, NO overflow hidden so input panel is visible
+  // Card
   card: {
     flexDirection: 'row',
     backgroundColor: '#FFF',
     borderRadius: 18,
-    minHeight: 100,
+    minHeight: 110,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -233,11 +261,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   cardInCart: {
-    backgroundColor: '#F8F4FF', // slightly purple shade to indicate it's in cart
+    backgroundColor: '#F8F4FF',
     borderColor: '#E8D5FA',
     borderWidth: 1,
   },
-  cardImage: { width: 100, height: 100, borderTopLeftRadius: 18, borderBottomLeftRadius: 18 },
+  cardImage: { width: '100%', height: '100%', borderTopLeftRadius: 18 },
   inCartBadge: {
     position: 'absolute',
     top: 6,
@@ -258,7 +286,7 @@ const styles = StyleSheet.create({
   cardBody: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingVertical: 8,
     justifyContent: 'center',
     gap: 4,
   },

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
 
 const CartContext = createContext();
 
@@ -6,6 +6,8 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [cartRemarks, setCartRemarks] = useState('');
+  const [clearCount, setClearCount] = useState(0);
 
   // Add item or increment quantity if exists
   const addToCart = (product, unit = 'kg', amount = 1) => {
@@ -35,6 +37,29 @@ export const CartProvider = ({ children }) => {
         );
       }
       return prev; 
+    });
+  };
+
+  // Update item unit
+  const updateItemUnit = (cartKey, newUnit) => {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.cartKey === cartKey);
+      if (!existing) return prev;
+      
+      const newCartKey = `${existing.id}-${newUnit}`;
+      const targetExisting = prev.find(item => item.cartKey === newCartKey);
+      if (targetExisting && targetExisting.cartKey !== cartKey) {
+        return prev.map(item => {
+          if (item.cartKey === newCartKey) {
+            return { ...item, qty: item.qty + existing.qty };
+          }
+          return item;
+        }).filter(item => item.cartKey !== cartKey);
+      }
+      
+      return prev.map(item => 
+        item.cartKey === cartKey ? { ...item, unit: newUnit, cartKey: newCartKey } : item
+      );
     });
   };
 
@@ -74,7 +99,18 @@ export const CartProvider = ({ children }) => {
     setCartItems(prev => prev.filter(item => item.cartKey !== cartKey));
   };
 
-  const clearCart = () => setCartItems([]);
+  // Update per-item remarks
+  const updateItemRemarks = (cartKey, remarks) => {
+    setCartItems(prev =>
+      prev.map(item => item.cartKey === cartKey ? { ...item, remarks } : item)
+    );
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    setCartRemarks('');
+    setClearCount(c => c + 1);  // bump so OrderNoteInput remounts with empty state
+  };
 
   const totalItems = cartItems.reduce((sum, item) => sum + parseFloat(item.qty || 0), 0);
   
@@ -101,21 +137,31 @@ export const CartProvider = ({ children }) => {
       .reduce((sum, item) => sum + parseFloat(item.qty || 0), 0);
   };
 
+  const productCount = cartItems.length;
+
+  const value = useMemo(() => ({
+    cartItems, 
+    addToCart, 
+    updateItemQty,
+    updateItemUnit,
+    updateItemRemarks,
+    setItemQty,
+    removeFromCart, 
+    deleteItem, 
+    clearCart, 
+    totalItems, 
+    totalPrice,
+    productCount,
+    getItemQty,
+    isProductInCart,
+    getProductTotalQty,
+    cartRemarks,
+    setCartRemarks,
+    clearCount,
+  }), [cartItems, totalItems, totalPrice, productCount, cartRemarks, clearCount]);
+
   return (
-    <CartContext.Provider value={{ 
-      cartItems, 
-      addToCart, 
-      updateItemQty,
-      setItemQty,
-      removeFromCart, 
-      deleteItem, 
-      clearCart, 
-      totalItems, 
-      totalPrice,
-      getItemQty,
-      isProductInCart,
-      getProductTotalQty
-    }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

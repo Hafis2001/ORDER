@@ -1,16 +1,17 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { 
   StyleSheet, 
   Text, 
   View, 
-  ScrollView, 
+  FlatList,
   TouchableOpacity, 
   Image,
   Dimensions,
   Animated,
   Easing,
   Alert,
-  TextInput
+  TextInput,
+  Modal
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +21,88 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 // --- Animated Components ---
+
+const UNITS = ['CTN', 'KG', 'BAG', 'TRY', 'PC', 'BOX', 'BDL', 'PKT'];
+
+const CartItemRow = React.memo(({ item, deleteItem }) => {
+  const { updateItemUnit } = useCart();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  return (
+    <>
+      <View style={styles.cartItem}>
+        <Image source={{ uri: item.image }} style={styles.itemImage} />
+        <View style={styles.itemInfo}>
+          <View style={styles.itemHeader}>
+            <View>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.unitDropdown}>
+                <Text style={styles.unitText}>{item.unit}</Text>
+                <MaterialIcons name="arrow-drop-down" size={16} color="#8E24AA" />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={() => deleteItem(item.cartKey)}>
+              <Trash2 size={18} color="#999" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.quantityRow}>
+            <CartQtyInput item={item} />
+          </View>
+
+          {/* Per-item Remarks — isolated to prevent FlatList from killing focus */}
+          <ItemRemarkInput cartKey={item.cartKey} initialRemarks={item.remarks || ''} />
+        </View>
+      </View>
+
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Unit</Text>
+            {UNITS.map(u => (
+              <TouchableOpacity 
+                key={u} 
+                style={styles.unitOption} 
+                onPress={() => {
+                  if (updateItemUnit) {
+                    updateItemUnit(item.cartKey, u);
+                  }
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={[styles.unitOptionText, item.unit === u && styles.unitOptionTextSelected]}>{u}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
+  );
+}, (prev, next) =>
+  prev.item.qty === next.item.qty &&
+  prev.item.cartKey === next.item.cartKey &&
+  prev.item.unit === next.item.unit
+);
+
+// Isolated per-item remark input — own local state so FlatList re-renders
+// don't remount this TextInput and dismiss the keyboard.
+function ItemRemarkInput({ cartKey, initialRemarks }) {
+  const { updateItemRemarks } = useCart();
+  const [localRemarks, setLocalRemarks] = useState(initialRemarks);
+  return (
+    <TextInput
+      style={styles.itemRemarkInput}
+      placeholder="Add note for this item..."
+      placeholderTextColor="#BBBBBB"
+      value={localRemarks}
+      onChangeText={setLocalRemarks}
+      onBlur={() => updateItemRemarks(cartKey, localRemarks)}
+      returnKeyType="done"
+      blurOnSubmit={false}
+      maxLength={200}
+    />
+  );
+}
 
 function CartQtyInput({ item }) {
   const { updateItemQty, addToCart, removeFromCart } = useCart();
@@ -384,7 +467,7 @@ function SuccessOverlay({ onFinish, itemsDesc }) {
 
 export default function CartScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice } = useCart();
+  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice, cartRemarks, setCartRemarks, clearCount } = useCart();
   const { token } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -396,12 +479,14 @@ export default function CartScreen({ navigation }) {
 
     try {
       const payload = {
+        cart_remarks: cartRemarks || '',
         items: cartItems.map(item => ({
           product_code: item.id,
           product_name: item.name,
           product_brand: item.brand || '',
           quantity: item.qty,
-          unit: item.unit
+          unit: item.unit.toLowerCase(),   // server expects lowercase: ctn, kg, bag…
+          remarks: item.remarks || '',
         }))
       };
 
@@ -428,6 +513,72 @@ export default function CartScreen({ navigation }) {
     setShowSuccess(true);
   };
 
+  const renderCartItem = useCallback(({ item }) => (
+    <CartItemRow item={item} deleteItem={deleteItem} />
+  ), [deleteItem]);
+
+  const keyExtractor = useCallback(item => item.cartKey, []);
+
+  const ListHeader = useCallback(() => (
+    <View style={styles.orderStatusContainer}>
+      <View style={styles.statusBadge}>
+        <ClipboardCheck size={16} color="#8E24AA" />
+        <Text style={styles.statusText}>READY TO PLACE</Text>
+      </View>
+      <Text style={styles.itemCountText}>{cartItems.length} Products Selected</Text>
+    </View>
+  ), [cartItems.length]);
+
+// Isolated overall-order note input — own local state + syncs to context on blur
+// so the FlatList footer doesn't remount on every keystroke.
+function OrderNoteInput() {
+  const { cartRemarks, setCartRemarks } = useCart();
+  const [localNote, setLocalNote] = useState(cartRemarks);
+  const isEditingRef = useRef(false);
+
+  // Only sync from context when the user is NOT actively typing.
+  // This fires when clearCart() resets cartRemarks → '' after an order.
+  useEffect(() => {
+    if (!isEditingRef.current) {
+      setLocalNote(cartRemarks);
+    }
+  }, [cartRemarks]);
+
+  return (
+    <View style={styles.noteContainer}>
+      <Text style={styles.noteTitle}>Order Note</Text>
+      <TextInput
+        style={styles.noteBox}
+        placeholder="Add special instructions for delivery..."
+        placeholderTextColor="#BBBBBB"
+        value={localNote}
+        onChangeText={setLocalNote}
+        onFocus={() => { isEditingRef.current = true; }}
+        onBlur={() => {
+          isEditingRef.current = false;
+          setCartRemarks(localNote);
+        }}
+        multiline
+        numberOfLines={3}
+        textAlignVertical="top"
+        blurOnSubmit={false}
+        maxLength={500}
+      />
+    </View>
+  );
+}
+
+  // clearCount increments each time clearCart() is called, forcing OrderNoteInput
+  // to remount with fresh empty state — no stale remark after order placement.
+  const ListFooter = useCallback(() => <OrderNoteInput key={clearCount} />, [clearCount]);
+
+  const ListEmpty = useCallback(() => (
+    <View style={styles.emptyCart}>
+      <ShoppingBag size={80} color="#F0F0F0" />
+      <Text style={styles.emptyText}>Your cart is empty</Text>
+    </View>
+  ), []);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {showSuccess && (
@@ -446,50 +597,20 @@ export default function CartScreen({ navigation }) {
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.orderStatusContainer}>
-          <View style={styles.statusBadge}>
-            <ClipboardCheck size={16} color="#8E24AA" />
-            <Text style={styles.statusText}>READY TO PLACE</Text>
-          </View>
-          <Text style={styles.itemCountText}>{totalItems} Products Selected</Text>
-        </View>
-
-        {cartItems.length > 0 ? (
-          cartItems.map(item => (
-            <View key={item.cartKey} style={styles.cartItem}>
-              <Image source={{ uri: item.image }} style={styles.itemImage} />
-              <View style={styles.itemInfo}>
-                <View style={styles.itemHeader}>
-                  <View>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.unitText}>{item.unit === 'kg' ? 'Kilogram (Kg)' : 'Box Pack'}</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => deleteItem(item.cartKey)}>
-                    <Trash2 size={18} color="#999" />
-                  </TouchableOpacity>
-                </View>
-                
-                <View style={styles.quantityRow}>
-                  <CartQtyInput item={item} />
-                </View>
-              </View>
-            </View>
-          ))
-        ) : (
-          <View style={styles.emptyCart}>
-            <ShoppingBag size={80} color="#F0F0F0" />
-            <Text style={styles.emptyText}>Your cart is empty</Text>
-          </View>
-        )}
-
-        <View style={styles.noteContainer}>
-          <Text style={styles.noteTitle}>Order Note</Text>
-          <View style={styles.noteBox}>
-            <Text style={styles.notePlaceholder}>Add special instructions for delivery...</Text>
-          </View>
-        </View>
-      </ScrollView>
+      <FlatList
+        data={cartItems}
+        keyExtractor={keyExtractor}
+        renderItem={renderCartItem}
+        ListHeaderComponent={ListHeader}
+        ListFooterComponent={ListFooter}
+        ListEmptyComponent={ListEmpty}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={10}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        removeClippedSubviews={false}
+      />
 
       <View style={[styles.footer, { bottom: insets.bottom + 20 }]}>
         {cartItems.length > 0 ? (
@@ -600,11 +721,58 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#333',
   },
+  unitDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+    backgroundColor: '#F3E5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
   unitText: {
     fontSize: 12,
     color: '#8E24AA',
     fontWeight: '600',
-    marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  unitOption: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  unitOptionText: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+  },
+  unitOptionTextSelected: {
+    color: '#8E24AA',
+    fontWeight: '800',
   },
   quantityRow: {
     flexDirection: 'row',
@@ -699,14 +867,29 @@ const styles = StyleSheet.create({
   noteBox: {
     backgroundColor: '#F8F9FA',
     borderRadius: 15,
-    padding: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: '#EEEEEE',
     minHeight: 80,
+    fontSize: 14,
+    color: '#333',
+    textAlignVertical: 'top',
   },
   notePlaceholder: {
     color: '#999',
     fontSize: 14,
+  },
+  itemRemarkInput: {
+    marginTop: 8,
+    backgroundColor: '#F9F4FC',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#EDE0F5',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 12,
+    color: '#333',
+    minHeight: 32,
   },
   footer: {
     position: 'absolute',

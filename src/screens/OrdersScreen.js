@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, Modal, ScrollView } from 'react-native';
 
 import { ChevronLeft, Package, Clock, CheckCircle2, ChevronRight, Truck, X } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const getStatusColor = (status) => {
   const s = status ? status.toLowerCase() : '';
@@ -18,7 +19,7 @@ const getStatusIcon = (status, color) => {
   return <Package size={14} color={color} />;
 };
 
-function OrderCard({ order, onViewDetails }) {
+const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
   const statusColor = getStatusColor(order.status);
   
   return (
@@ -43,7 +44,7 @@ function OrderCard({ order, onViewDetails }) {
         </View>
         <View style={styles.detailCol}>
           <Text style={styles.detailLabel}>Total Qty</Text>
-          <Text style={styles.detailValueTotal}>{order.totalQuantity}</Text>
+          <Text style={styles.detailValueTotal}>{Number(order.totalQuantity || 0).toFixed(3)}</Text>
         </View>
         <View style={styles.detailCol}>
           <Text style={styles.detailLabel}>Unique Items</Text>
@@ -67,10 +68,11 @@ function OrderCard({ order, onViewDetails }) {
       </View>
     </TouchableOpacity>
   );
-}
+}, (prevProps, nextProps) => prevProps.order.id === nextProps.order.id);
 
 export default function OrdersScreen({ navigation }) {
   const { token, user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -133,17 +135,21 @@ export default function OrdersScreen({ navigation }) {
     fetchOrders();
   }, [token, user]);
 
+  const renderItem = useCallback(({ item }) => (
+    <OrderCard order={item} onViewDetails={setSelectedOrder} />
+  ), []);
+
+  const keyExtractor = useCallback(item => item.id.toString(), []);
+
   return (
     <View style={styles.container}>
       {/* Gradient Header */}
       <View
-        style={[styles.header, { backgroundColor: '#8E24AA' }]}
+        style={[styles.header, { backgroundColor: '#8E24AA', paddingTop: insets.top + 15 }]}
       >
-        <SafeAreaView>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>My Orders</Text>
-          </View>
-        </SafeAreaView>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>My Orders</Text>
+        </View>
       </View>
 
       {/* List */}
@@ -159,10 +165,14 @@ export default function OrdersScreen({ navigation }) {
       ) : (
         <FlatList
           data={orders}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <OrderCard order={item} onViewDetails={setSelectedOrder} />}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={6}
+          windowSize={3}
+          removeClippedSubviews={false}
         />
       )}
 
@@ -198,7 +208,7 @@ export default function OrdersScreen({ navigation }) {
                     )}
                   </View>
                   <View style={styles.detailItemRight}>
-                    <Text style={styles.detailItemQty}>{item.qty}</Text>
+                    <Text style={styles.detailItemQty}>{Number(item.qty || 0).toFixed(3)}</Text>
                     <Text style={styles.detailItemUnit}>{item.unit}</Text>
                   </View>
                 </View>
@@ -240,13 +250,13 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: '#FFF',
-    borderRadius: 20,
-    padding: 16,
-    elevation: 4,
+    borderRadius: 16,
+    padding: 12,
+    elevation: 3,
     shadowColor: '#8E24AA',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(142,36,170,0.05)',
   },
@@ -255,17 +265,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   orderIdWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     flex: 1,
     marginRight: 10,
   },
   orderId: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
     color: '#1A2A3A',
     flexShrink: 1,
@@ -274,39 +284,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
   },
   statusText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
   },
 
   cardBody: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 10,
     backgroundColor: '#F8F9FA',
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
   },
   detailCol: {
     alignItems: 'flex-start',
   },
   detailLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#888',
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   detailValue: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#333',
     fontWeight: '700',
   },
   detailValueTotal: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#8E24AA',
     fontWeight: '900',
   },
@@ -314,7 +324,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#F0F0F0',
-    marginBottom: 12,
+    marginBottom: 10,
   },
 
   cardFooter: {
@@ -328,7 +338,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   deliveryText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666',
     fontWeight: '600',
   },
@@ -338,7 +348,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   viewDetailsText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#8E24AA',
     fontWeight: '700',
   },

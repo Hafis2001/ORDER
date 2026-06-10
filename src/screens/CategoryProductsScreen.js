@@ -1,20 +1,31 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   StyleSheet, Text, View, FlatList,
-  TouchableOpacity, Image, TextInput, Alert, ScrollView,
-  ActivityIndicator
+  TouchableOpacity, TextInput, Alert, ScrollView,
+  ActivityIndicator, Image, Modal
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  interpolate,
+  Extrapolate
+} from 'react-native-reanimated';
 
-import { ChevronLeft, ShoppingCart, Search, Plus, X } from 'lucide-react-native';
+import { ChevronLeft, ShoppingCart, Search, Plus, X, ChevronDown } from 'lucide-react-native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchProducts } from '../api/products';
 
-function ItemRow({ item }) {
+const UNITS = ['CTN', 'KG', 'BAG', 'TRY', 'PC', 'BOX', 'BDL', 'PKT'];
+
+const ItemRow = React.memo(function ItemRow({ item, onPress }) {
   const { setItemQty, getItemQty, isProductInCart, getProductTotalQty, cartItems } = useCart();
   const [inputOpen, setInputOpen] = useState(false);
-  const [unit, setUnit] = useState('Kg');
+  const [unit, setUnit] = useState('KG');
+  const [modalVisible, setModalVisible] = useState(false);
   const [qty, setQty] = useState('');
   const [remarks, setRemarks] = useState('');
   const inputRef = useRef(null);
@@ -74,47 +85,58 @@ function ItemRow({ item }) {
     zIndex: 10,
   }));
 
+  const isOutOfStock = item.isInStock === false;
+
   return (
     <View style={[styles.card, inCart && styles.cardInCart]}>
-      {/* Left: image */}
-      <View>
-        <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <TouchableOpacity style={{ flex: 1, flexDirection: inputOpen ? 'column' : 'row' }} onPress={onPress} activeOpacity={0.9}>
+      {/* Image Container */}
+      <View style={inputOpen ? { width: '100%', height: 100 } : { width: 100, height: 110 }}>
+        <Image
+          source={{ uri: item.image }}
+          style={styles.cardImage}
+          resizeMode="cover"
+        />
         {/* Animated Ghost / Pulse */}
         <Animated.View style={successAnimStyle} pointerEvents="none" />
+
+        {/* Out of Stock overlay */}
+        {isOutOfStock && (
+          <View style={[styles.cardImage, styles.outOfStockOverlay]}>
+            <Text style={styles.outOfStockOverlayText}>OUT OF{`\n`}STOCK</Text>
+          </View>
+        )}
         
         {inCart && (
           <View style={styles.inCartBadge}>
             <ShoppingCart size={10} color="#FFF" />
-            <Text style={styles.inCartText}>{totalQtyInCart}</Text>
+            <Text style={styles.inCartText}>{Number(totalQtyInCart || 0).toFixed(3)}</Text>
           </View>
         )}
       </View>
 
-      {/* Center: info */}
+      {/* Bottom: info */}
       <View style={styles.cardBody}>
-        <Text style={styles.categoryLabel}>{item.category?.toUpperCase()}</Text>
         <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-        <Text style={styles.itemWeight}>{item.weight}</Text>
       </View>
+      </TouchableOpacity>
 
       {/* Right: + button OR input panel */}
-      {inputOpen ? (
+      {isOutOfStock ? (
+        /* Disabled state for out-of-stock */
+        <View style={styles.outOfStockBtn}>
+          <Text style={styles.outOfStockBtnText}>N/A</Text>
+        </View>
+      ) : inputOpen ? (
         <View style={styles.inputPanel}>
-          {/* Kg / Box chips */}
-          <View style={styles.unitRow}>
-            <TouchableOpacity
-              style={[styles.unitChip, unit === 'Kg' && styles.unitChipOn]}
-              onPress={() => setUnit('Kg')}
-            >
-              <Text style={[styles.unitChipTxt, unit === 'Kg' && styles.unitChipTxtOn]}>Kg</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.unitChip, unit === 'Box' && styles.unitChipOn]}
-              onPress={() => setUnit('Box')}
-            >
-              <Text style={[styles.unitChipTxt, unit === 'Box' && styles.unitChipTxtOn]}>Box</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Unit Dropdown */}
+          <TouchableOpacity 
+            style={styles.unitDropdownBtn} 
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.unitDropdownTxt}>{unit}</Text>
+            <ChevronDown size={14} color="#8E24AA" />
+          </TouchableOpacity>
 
           {/* Quantity input */}
           <TextInput
@@ -165,20 +187,30 @@ function ItemRow({ item }) {
           {inCart ? <Text style={styles.editBtnTxt}>Edit</Text> : <Plus size={28} color="#FFF" />}
         </TouchableOpacity>
       )}
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Unit</Text>
+            {UNITS.map(u => (
+              <TouchableOpacity 
+                key={u} 
+                style={styles.unitOption} 
+                onPress={() => {
+                  setUnit(u);
+                  const existingQty = getItemQty(item.id, u.toLowerCase());
+                  setQty(existingQty > 0 ? String(existingQty) : '');
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={[styles.unitOptionText, unit === u && styles.unitOptionTextSelected]}>{u}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
-}
-
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-  withSequence,
-  interpolate,
-  Extrapolate
-} from 'react-native-reanimated';
-
-// ... (other components)
+}, (prevProps, nextProps) => prevProps.item.id === nextProps.item.id);
 
 export default function CategoryProductsScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
@@ -186,7 +218,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
   const initialProducts = route.params?.products || [];
   
   const [activeCategory, setActiveCategory] = useState(initialCategory);
-  const { totalItems } = useCart();
+  const { productCount } = useCart();
   const { token } = useAuth();
   
   const [search, setSearch] = useState('');
@@ -198,13 +230,13 @@ export default function CategoryProductsScreen({ navigation, route }) {
 
   // Trigger jump when totalItems changes
   useEffect(() => {
-    if (totalItems > 0) {
+    if (productCount > 0) {
       cartScale.value = withSequence(
         withSpring(1.4, { damping: 10, stiffness: 100 }),
         withSpring(1, { damping: 10, stiffness: 100 })
       );
     }
-  }, [totalItems]);
+  }, [productCount]);
 
   const cartAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cartScale.value }]
@@ -218,16 +250,33 @@ export default function CategoryProductsScreen({ navigation, route }) {
       setLoading(true);
       const data = await fetchProducts(token, 1);
       if (data && data.results) {
-        const mapped = data.results.map(p => ({
-          id: p.code,
-          name: p.name,
-          category: p.product,
-          brand: p.brand,
-          company: p.company,
-          weight: '1 Unit',
-          price: '0.00',
-          image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400',
-        }));
+        const mapped = data.results.map(p => {
+          let imageUrl = p.product_image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400';
+          const cat = (p.product || '').toUpperCase();
+          const name = (p.name || '').toUpperCase();
+          
+          if (!p.product_image) {
+            if (cat.includes('VEGETABLE') || name.includes('VEG')) {
+              imageUrl = 'https://images.unsplash.com/photo-1566385101042-1a000c1268c4?q=80&w=400';
+            } else if (cat.includes('FRUIT') || name.includes('FRUIT')) {
+              imageUrl = 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?q=80&w=400';
+            }
+          }
+          
+          return {
+            id: p.code,
+            name: p.name,
+            category: p.product,
+            brand: p.brand,
+            company: p.company,
+            weight: '1 Unit',
+            price: '0.00',
+            image: imageUrl,
+            isInStock: p.is_in_stock,
+          };
+        });
+        
+        mapped.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         setProducts(mapped);
       }
       setLoading(false);
@@ -254,6 +303,12 @@ export default function CategoryProductsScreen({ navigation, route }) {
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const renderItem = useCallback(({ item }) => (
+    <ItemRow item={item} onPress={() => navigation.navigate('ItemDetail', { item })} />
+  ), [navigation]);
+
+  const keyExtractor = useCallback(item => item.id.toString(), []);
+  
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Gradient Header */}
@@ -268,9 +323,9 @@ export default function CategoryProductsScreen({ navigation, route }) {
         <Animated.View style={cartAnimStyle}>
           <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
             <ShoppingCart size={22} color="#FFF" />
-            {totalItems > 0 && (
+            {productCount > 0 && (
               <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeTxt}>{totalItems > 99 ? '99+' : totalItems}</Text>
+                <Text style={styles.cartBadgeTxt}>{productCount > 99 ? '99+' : productCount}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -312,8 +367,8 @@ export default function CategoryProductsScreen({ navigation, route }) {
       ) : (
         <FlatList
           data={filtered}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <ItemRow item={item} />}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -321,6 +376,10 @@ export default function CategoryProductsScreen({ navigation, route }) {
           ListEmptyComponent={
             <Text style={{ textAlign: 'center', marginTop: 20, color: '#999' }}>No products found</Text>
           }
+          initialNumToRender={6}
+          maxToRenderPerBatch={6}
+          windowSize={5}
+          removeClippedSubviews={true}
         />
       )}
     </View>
@@ -370,14 +429,14 @@ const styles = StyleSheet.create({
   filterTextActive: { color: '#FFF' },
 
   // List
-  list: { paddingHorizontal: 14, paddingBottom: 40 },
+  list: { paddingHorizontal: 14, paddingBottom: 140 },
 
   // Card
   card: {
     flexDirection: 'row',
     backgroundColor: '#FFF',
     borderRadius: 18,
-    minHeight: 100,
+    minHeight: 110,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -389,7 +448,7 @@ const styles = StyleSheet.create({
     borderColor: '#E8D5FA',
     borderWidth: 1,
   },
-  cardImage: { width: 100, height: 100, borderTopLeftRadius: 18, borderBottomLeftRadius: 18 },
+  cardImage: { width: '100%', height: '100%', borderTopLeftRadius: 18 },
   inCartBadge: {
     position: 'absolute',
     top: 6,
@@ -410,13 +469,42 @@ const styles = StyleSheet.create({
   cardBody: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingVertical: 8,
     justifyContent: 'center',
     gap: 3,
   },
   categoryLabel: { fontSize: 9, fontWeight: '900', color: '#27AE60', letterSpacing: 1 },
   itemName: { fontSize: 14, fontWeight: '800', color: '#1A2A3A', lineHeight: 20 },
   itemWeight: { fontSize: 11, color: '#AAA', fontWeight: '600' },
+
+  // Out of Stock styles
+  outOfStockOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    borderTopLeftRadius: 18, borderTopRightRadius: 0,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  outOfStockOverlayText: {
+    color: '#FFF', fontSize: 9, fontWeight: '900',
+    textAlign: 'center', letterSpacing: 0.5,
+  },
+  outOfStockBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FDECEA',
+    paddingHorizontal: 8, paddingVertical: 3,
+    borderRadius: 8, marginTop: 4,
+  },
+  outOfStockBadgeText: { fontSize: 9, fontWeight: '800', color: '#E74C3C' },
+  outOfStockBtn: {
+    width: 85,
+    backgroundColor: '#D0D0D0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopRightRadius: 18,
+    borderBottomRightRadius: 18,
+  },
+  outOfStockBtnText: { color: '#FFF', fontSize: 12, fontWeight: '800' },
 
   // + button (default right side)
   plusBtn: {
@@ -451,16 +539,26 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 18,
   },
 
-  // Unit chips
-  unitRow: { flexDirection: 'row', gap: 4, width: '100%' },
-  unitChip: {
-    flex: 1, paddingVertical: 5, borderRadius: 8,
-    backgroundColor: '#F0F0F0', alignItems: 'center',
-    borderWidth: 1.5, borderColor: 'transparent',
+  // Unit Dropdown
+  unitDropdownBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
+    width: '100%', paddingVertical: 6, borderRadius: 8,
+    backgroundColor: '#FFF0F7', borderWidth: 1, borderColor: '#8E24AA',
   },
-  unitChipOn: { backgroundColor: '#FFF0F7', borderColor: '#8E24AA' },
-  unitChipTxt: { fontSize: 11, fontWeight: '800', color: '#999' },
-  unitChipTxtOn: { color: '#8E24AA' },
+  unitDropdownTxt: { fontSize: 12, fontWeight: '800', color: '#8E24AA' },
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%', backgroundColor: '#FFF', borderRadius: 16, padding: 20, elevation: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18, fontWeight: '800', color: '#333', marginBottom: 15, textAlign: 'center',
+  },
+  unitOption: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  unitOptionText: { fontSize: 16, color: '#555', textAlign: 'center' },
+  unitOptionTextSelected: { color: '#8E24AA', fontWeight: '800' },
 
   // Quantity input
   qtyInput: {

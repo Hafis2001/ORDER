@@ -1,13 +1,45 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import {
+  registerForPushNotificationsAsync,
+  sendExpoPushTokenToApi,
+} from '../services/pushNotifications';
 
 const AuthContext = createContext();
+const EXPO_PUSH_TOKEN_KEY = 'expoPushToken';
+const EXPO_PUSH_TOKEN_SYNCED_KEY = 'expoPushTokenSynced';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const syncPushToken = async (authToken) => {
+    try {
+      const pushTokens = await registerForPushNotificationsAsync();
+
+      if (!pushTokens || !pushTokens.expoToken) {
+        return;
+      }
+
+      const { expoToken } = pushTokens;
+      const syncedToken = await AsyncStorage.getItem(EXPO_PUSH_TOKEN_SYNCED_KEY);
+      
+      if (syncedToken === expoToken) {
+        await AsyncStorage.setItem(EXPO_PUSH_TOKEN_KEY, expoToken);
+        return;
+      }
+
+      await sendExpoPushTokenToApi(authToken, pushTokens);
+      await AsyncStorage.multiSet([
+        [EXPO_PUSH_TOKEN_KEY, expoToken],
+        [EXPO_PUSH_TOKEN_SYNCED_KEY, expoToken],
+      ]);
+    } catch (error) {
+      console.warn('[PushToken] Could not sync push token:', error.message);
+    }
+  };
 
   // Load token and user data on app start
   useEffect(() => {
@@ -15,20 +47,11 @@ export function AuthProvider({ children }) {
       try {
         const storedToken = await AsyncStorage.getItem('userToken');
         const storedUser = await AsyncStorage.getItem('userData');
-        const loginTimestamp = await AsyncStorage.getItem('loginTimestamp');
         
-        if (storedToken && storedUser && loginTimestamp) {
-          const now = Date.now();
-          const loginTime = parseInt(loginTimestamp);
-          const hoursElapsed = (now - loginTime) / (1000 * 60 * 60);
-
-          if (hoursElapsed < 23) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-          } else {
-            // Session expired
-            await logout();
-          }
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          syncPushToken(storedToken);
         }
       } catch (error) {
         console.error('Failed to load auth data', error);
@@ -65,10 +88,10 @@ export function AuthProvider({ children }) {
         
         await AsyncStorage.setItem('userToken', data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        await AsyncStorage.setItem('loginTimestamp', Date.now().toString());
         
         setToken(data.token);
         setUser(userData);
+        await syncPushToken(data.token);
         return true;
       } else {
         Alert.alert('Login Failed', data.detail || data.message || 'Invalid credentials. Please try again.');
@@ -87,7 +110,9 @@ export function AuthProvider({ children }) {
     try {
       await AsyncStorage.removeItem('userToken');
       await AsyncStorage.removeItem('userData');
-      await AsyncStorage.removeItem('loginTimestamp');
+      await AsyncStorage.removeItem('loginTimestamp'); // keeping for backwards compat cleanup
+      await AsyncStorage.removeItem(EXPO_PUSH_TOKEN_KEY);
+      await AsyncStorage.removeItem(EXPO_PUSH_TOKEN_SYNCED_KEY);
       setToken(null);
       setUser(null);
     } catch (error) {
@@ -107,8 +132,42 @@ export function AuthProvider({ children }) {
     return fetch(url, { ...options, headers });
   };
 
+let isSessionExpiredAlertShown = false;
+
+  // Global fetch interceptor for catching 401 token expiry
+  useEffect(() => {
+    const originalFetch = global.fetch;
+    global.fetch = async (...args) => {
+      try {
+        const response = await originalFetch(...args);
+        if (response.status === 401 && !isSessionExpiredAlertShown) {
+          isSessionExpiredAlertShown = true;
+          Alert.alert('Session Expired', 'Your session has expired. Please log in again.', [
+            { 
+              text: 'OK', 
+              onPress: () => {
+                isSessionExpiredAlertShown = false;
+                logout();
+              }
+            }
+          ]);
+        }
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    };
+    return () => {
+      global.fetch = originalFetch;
+    };
+  }, []);
+
+  const value = useMemo(() => ({
+    user, token, isLoading, login, logout, authFetch
+  }), [user, token, isLoading]);
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, authFetch }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

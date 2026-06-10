@@ -23,6 +23,7 @@ import {
   Settings
 } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -50,6 +51,7 @@ const ActionItem = ({ icon: Icon, label, onPress, color = '#333' }) => (
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
     Alert.alert(
@@ -57,9 +59,12 @@ export default function ProfileScreen({ navigation }) {
       "Are you sure you want to log out of your account?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Logout", style: "destructive", onPress: () => {
-            logout();
-            navigation.replace('Login');
+        { text: "Logout", style: "destructive", onPress: async () => {
+            await logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
           }
         }
       ]
@@ -72,11 +77,11 @@ export default function ProfileScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header Section */}
         <View
-          style={[styles.header, { backgroundColor: '#8E24AA' }]}
+          style={[styles.header, { backgroundColor: '#8E24AA', paddingTop: insets.top + 20 }]}
         >
           <View style={styles.profileImageContainer}>
             <View style={styles.profileImage}>
@@ -117,15 +122,15 @@ export default function ProfileScreen({ navigation }) {
             <View
               style={styles.logoutGradient}
             >
-              <LogOut size={20} color="#FF3B30" />
+              <LogOut size={20} color="#FFF" />
               <Text style={styles.logoutText}>Sign Out</Text>
             </View>
           </TouchableOpacity>
           
-          <Text style={styles.version}>App Version 1.0.4 • Build 2026</Text>
+          <Text style={styles.version}>App Version 1.2.2 • Build 2026</Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -135,7 +140,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
-    paddingTop: 40,
     paddingBottom: 40,
     alignItems: 'center',
     borderBottomLeftRadius: 40,
@@ -267,13 +271,12 @@ const styles = StyleSheet.create({
     marginTop: 30,
     borderRadius: 20,
     overflow: 'hidden',
+    backgroundColor: '#FF3B30',
     shadowColor: '#FF3B30',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 10,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#FFEBEA',
+    elevation: 4,
   },
   logoutGradient: {
     flexDirection: 'row',
@@ -285,7 +288,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FF3B30',
+    color: '#FFF',
   },
   version: {
     textAlign: 'center',

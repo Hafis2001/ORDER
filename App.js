@@ -1,11 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { Home, Search, ShoppingBag, ClipboardList, User } from 'lucide-react-native';
+import { Home, Search, ShoppingBag, ClipboardList, User, Users } from 'lucide-react-native';
 
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from 'react-native-reanimated';
 
@@ -18,6 +18,8 @@ import CategoryProductsScreen from './src/screens/CategoryProductsScreen';
 import ItemDetailScreen from './src/screens/ItemDetailScreen';
 import OrdersScreen from './src/screens/OrdersScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import CustomerLedgerListScreen from './src/screens/CustomerLedgerListScreen';
+import CustomerLedgerDetailScreen from './src/screens/CustomerLedgerDetailScreen';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 
@@ -94,6 +96,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
           const iconMap = {
             Home: Home,
             Items: ShoppingBag,
+            Customers: Users,
             Orders: ClipboardList,
             Profile: User,
           };
@@ -126,8 +129,8 @@ function MainTabs() {
         initialParams={{ category: 'All' }} />
       <Tab.Screen name="Search" component={CategoryProductsScreen}
         initialParams={{ category: 'All' }} />
+      <Tab.Screen name="Customers" component={CustomerLedgerDetailScreen} />
       <Tab.Screen name="Orders" component={OrdersScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -221,6 +224,8 @@ export default function App() {
               <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
               <Stack.Screen name="Cart" component={CartScreen} options={{ animation: 'slide_from_bottom' }} />
               <Stack.Screen name="ItemDetail" component={ItemDetailScreen} />
+              <Stack.Screen name="CustomerLedgerDetail" component={CustomerLedgerDetailScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </CartProvider>

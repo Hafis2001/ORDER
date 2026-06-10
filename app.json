@@ -1,10 +1,11 @@
 {
   "expo": {
+    "scheme": "goldenrainest",
     "name": "GOLDEN RAIN EST",
     "slug": "golden-rain-est",
-    "version": "1.0.0",
+    "version": "2.1.1",
     "orientation": "portrait",
-    "icon": "./assets/appiconnew.jpeg",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -14,16 +15,26 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.IMCBS.goldenrainest"
+      "bundleIdentifier": "com.IMCBS.goldenrainest",
+      "buildNumber": "4",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "versionCode": 4,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/image.jpeg",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.IMCBS.goldenrainest",
-      "edgeToEdgeEnabled": false
+      "edgeToEdgeEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
+    "plugins": [
+      "expo-notifications",
+      "@react-native-community/datetimepicker"
+    ],
     "web": {
       "favicon": "./assets/image.jpeg"
     },

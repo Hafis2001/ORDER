@@ -27,8 +27,14 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading: contextLoading } = useAuth();
+  const { login, isLoading: contextLoading, token } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  React.useEffect(() => {
+    if (!contextLoading && token) {
+      navigation.replace('MainTabs');
+    }
+  }, [contextLoading, token, navigation]);
 
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
