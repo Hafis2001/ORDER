@@ -24,11 +24,11 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
   
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => onViewDetails(order)}>
-      {/* Top Header */}
+      {/* Top Header: Date and Status */}
       <View style={styles.cardHeader}>
-        <View style={styles.orderIdWrap}>
-          <Package size={16} color="#8E24AA" />
-          <Text style={styles.orderId} numberOfLines={1} ellipsizeMode="tail">{order.id}</Text>
+        <View style={styles.orderDateWrap}>
+          <Clock size={18} color="#8E24AA" />
+          <Text style={styles.orderDateText} numberOfLines={1}>{order.date}</Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
           {getStatusIcon(order.status, statusColor)}
@@ -36,21 +36,31 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
         </View>
       </View>
 
-      {/* Details */}
+      {/* Divider */}
+      <View style={styles.divider} />
+
+      {/* Details Section */}
       <View style={styles.cardBody}>
-        <View style={styles.detailCol}>
-          <Text style={styles.detailLabel}>Date</Text>
-          <Text style={styles.detailValue}>{order.date}</Text>
+        <View style={[styles.detailCol, { flex: 2 }]}>
+          <Text style={styles.detailLabel}>Batch Ref.</Text>
+          <Text style={styles.detailValueId} numberOfLines={1}>{order.id}</Text>
         </View>
-        <View style={styles.detailCol}>
+        <View style={[styles.detailCol, { flex: 1, alignItems: 'center' }]}>
+          <Text style={styles.detailLabel}>Items</Text>
+          <Text style={styles.detailValue}>{order.items}</Text>
+        </View>
+        <View style={[styles.detailCol, { flex: 1, alignItems: 'flex-end' }]}>
           <Text style={styles.detailLabel}>Total Qty</Text>
           <Text style={styles.detailValueTotal}>{Number(order.totalQuantity || 0).toFixed(3)}</Text>
         </View>
-        <View style={styles.detailCol}>
-          <Text style={styles.detailLabel}>Unique Items</Text>
-          <Text style={styles.detailValue}>{order.items} items</Text>
-        </View>
       </View>
+
+      {!!order.cartRemarks && (
+        <View style={styles.orderNoteBox}>
+          <Text style={styles.orderNoteLabel}>Order Note</Text>
+          <Text style={styles.orderNoteText}>{order.cartRemarks}</Text>
+        </View>
+      )}
 
       {/* Divider */}
       <View style={styles.divider} />
@@ -58,11 +68,11 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
       {/* Bottom Footer */}
       <View style={styles.cardFooter}>
         <View style={styles.deliveryInfo}>
-          <Truck size={14} color="#888" />
-          <Text style={styles.deliveryText}>{order.expectedDelivery || 'Standard Delivery'}</Text>
+          <Package size={15} color="#888" />
+          <Text style={styles.deliveryText}>Order Summary</Text>
         </View>
         <View style={styles.viewDetails}>
-          <Text style={styles.viewDetailsText}>Details</Text>
+          <Text style={styles.viewDetailsText}>View Items</Text>
           <ChevronRight size={16} color="#8E24AA" />
         </View>
       </View>
@@ -120,7 +130,8 @@ export default function OrdersScreen({ navigation }) {
               totalQuantity: totalQuantity,
               expectedDelivery: batch.status_display || 'Processing',
               timestamp: d.getTime(),
-              itemsList
+              itemsList,
+              cartRemarks: batch.cart_remarks || ''
             };
           }).sort((a, b) => b.timestamp - a.timestamp);
 
@@ -251,74 +262,100 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFF',
     borderRadius: 16,
-    padding: 12,
+    padding: 16,
     elevation: 3,
     shadowColor: '#8E24AA',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(142,36,170,0.05)',
+    borderColor: 'rgba(142,36,170,0.08)',
   },
   
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  orderIdWrap: {
+  orderDateWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     flex: 1,
     marginRight: 10,
   },
-  orderId: {
-    fontSize: 14,
-    fontWeight: '800',
+  orderDateText: {
+    fontSize: 16,
+    fontWeight: '900',
     color: '#1A2A3A',
-    flexShrink: 1,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
   },
   statusText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
+    textTransform: 'uppercase',
   },
 
   cardBody: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
-    backgroundColor: '#F8F9FA',
-    padding: 10,
-    borderRadius: 10,
+    marginBottom: 12,
+    marginTop: 6,
   },
   detailCol: {
-    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   detailLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#888',
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  detailValueId: {
+    fontSize: 12,
+    color: '#555',
+    fontWeight: '600',
   },
   detailValue: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#333',
-    fontWeight: '700',
+    fontWeight: '800',
   },
   detailValueTotal: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#8E24AA',
     fontWeight: '900',
+  },
+
+  orderNoteBox: {
+    backgroundColor: '#FDF8E4',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FBEFB4',
+  },
+  orderNoteLabel: {
+    fontSize: 10,
+    color: '#856404',
+    fontWeight: '800',
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
+  orderNoteText: {
+    fontSize: 12,
+    color: '#856404',
+    fontWeight: '600',
   },
 
   divider: {
@@ -331,6 +368,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 2,
   },
   deliveryInfo: {
     flexDirection: 'row',
@@ -338,19 +376,23 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   deliveryText: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#666',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   viewDetails: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+    backgroundColor: '#F3E5F5',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   viewDetailsText: {
     fontSize: 12,
     color: '#8E24AA',
-    fontWeight: '700',
+    fontWeight: '800',
   },
 
   // Modal Styles

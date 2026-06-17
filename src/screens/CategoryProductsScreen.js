@@ -165,6 +165,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
             <TouchableOpacity 
               style={styles.cancelBtn} 
               onPress={closeInput}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               activeOpacity={0.7}
             >
               <X size={20} color="#999" />
@@ -182,6 +183,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
         <TouchableOpacity 
           style={[styles.plusBtn, inCart && styles.plusBtnInCart]} 
           onPress={openInput} 
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.85}
         >
           {inCart ? <Text style={styles.editBtnTxt}>Edit</Text> : <Plus size={28} color="#FFF" />}

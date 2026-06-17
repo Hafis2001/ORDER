@@ -62,7 +62,7 @@ export default function ItemDetailScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* Image Hero */}
-        <View style={[styles.hero, { backgroundColor: '#8E24AA' }]}>
+        <View style={[styles.hero, { backgroundColor: '#FFF' }]}>
           <Image source={{ uri: item.image }} style={styles.heroImg} />
         </View>
 
@@ -125,6 +125,7 @@ export default function ItemDetailScreen({ navigation, route }) {
           <View style={styles.qtyInputRow}>
             <TouchableOpacity
               style={styles.qtyStepBtn}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               onPress={() => {
                 const cur = parseFloat(qtyText) || 0;
                 if (cur > 0) setQtyText(String(parseFloat((cur - 1).toFixed(3))));
@@ -148,6 +149,7 @@ export default function ItemDetailScreen({ navigation, route }) {
             />
             <TouchableOpacity
               style={styles.qtyStepBtn}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               onPress={() => {
                 const cur = parseFloat(qtyText) || 0;
                 setQtyText(String(parseFloat((cur + 1).toFixed(3))));
@@ -212,7 +214,7 @@ const styles = StyleSheet.create({
   badge: { position: 'absolute', top: 0, right: 0, backgroundColor: '#8E24AA', width: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center' },
   badgeText: { color: '#FFF', fontSize: 7, fontWeight: 'bold' },
   hero: { width, height: 240, justifyContent: 'center', alignItems: 'center' },
-  heroImg: { width: '100%', height: '100%', resizeMode: 'cover' },
+  heroImg: { width: '100%', height: '100%', resizeMode: 'contain' },
   catTag: { position: 'absolute', top: 14, right: 14, backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
   catTagText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
   details: { padding: 20 },
@@ -248,8 +250,8 @@ const styles = StyleSheet.create({
   unitOption: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   unitOptionText: { fontSize: 16, color: '#555', textAlign: 'center' },
   unitOptionTextSelected: { color: '#8E24AA', fontWeight: '800' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', paddingHorizontal: 16, paddingTop: 10, flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0', elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.06, shadowRadius: 8 },
-  qtyInputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#E0E0E0', borderRadius: 14, overflow: 'hidden', marginTop: 4 },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', paddingHorizontal: 16, paddingTop: 10, flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0', elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.06, shadowRadius: 8, zIndex: 10 },
+  qtyInputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#E0E0E0', borderRadius: 14, overflow: 'hidden', marginTop: 4, zIndex: 1 },
   qtyStepBtn: { width: 44, height: 48, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0FF' },
   qtyTypeInput: { flex: 1, height: 48, textAlign: 'center', fontSize: 22, fontWeight: '900', color: '#1A2A3A' },
   inCartNote: { fontSize: 11, color: '#8E24AA', fontWeight: '700', marginTop: 6 },

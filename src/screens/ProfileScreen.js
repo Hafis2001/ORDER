@@ -127,7 +127,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
           </TouchableOpacity>
           
-          <Text style={styles.version}>App Version 1.2.2 • Build 2026</Text>
+          <Text style={styles.version}>App Version 3.2.2 • Build 2026</Text>
         </View>
       </ScrollView>
     </View>

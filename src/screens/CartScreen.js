@@ -41,7 +41,7 @@ const CartItemRow = React.memo(({ item, deleteItem }) => {
                 <MaterialIcons name="arrow-drop-down" size={16} color="#8E24AA" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => deleteItem(item.cartKey)}>
+            <TouchableOpacity hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => deleteItem(item.cartKey)}>
               <Trash2 size={18} color="#999" />
             </TouchableOpacity>
           </View>
@@ -127,7 +127,7 @@ function CartQtyInput({ item }) {
 
   return (
     <View style={styles.quantityContainer}>
-      <TouchableOpacity style={styles.qtyButton} onPress={() => removeFromCart(item.id, item.unit)}>
+      <TouchableOpacity style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => removeFromCart(item.id, item.unit)}>
         <Minus size={16} color="#8E24AA" />
       </TouchableOpacity>
       <TextInput 
@@ -139,7 +139,7 @@ function CartQtyInput({ item }) {
         maxLength={5}
         selectTextOnFocus
       />
-      <TouchableOpacity style={styles.qtyButton} onPress={() => addToCart(item, item.unit, 1)}>
+      <TouchableOpacity style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => addToCart(item, item.unit, 1)}>
         <Plus size={16} color="#8E24AA" />
       </TouchableOpacity>
     </View>
@@ -529,20 +529,8 @@ export default function CartScreen({ navigation }) {
     </View>
   ), [cartItems.length]);
 
-// Isolated overall-order note input — own local state + syncs to context on blur
-// so the FlatList footer doesn't remount on every keystroke.
 function OrderNoteInput() {
   const { cartRemarks, setCartRemarks } = useCart();
-  const [localNote, setLocalNote] = useState(cartRemarks);
-  const isEditingRef = useRef(false);
-
-  // Only sync from context when the user is NOT actively typing.
-  // This fires when clearCart() resets cartRemarks → '' after an order.
-  useEffect(() => {
-    if (!isEditingRef.current) {
-      setLocalNote(cartRemarks);
-    }
-  }, [cartRemarks]);
 
   return (
     <View style={styles.noteContainer}>
@@ -551,13 +539,8 @@ function OrderNoteInput() {
         style={styles.noteBox}
         placeholder="Add special instructions for delivery..."
         placeholderTextColor="#BBBBBB"
-        value={localNote}
-        onChangeText={setLocalNote}
-        onFocus={() => { isEditingRef.current = true; }}
-        onBlur={() => {
-          isEditingRef.current = false;
-          setCartRemarks(localNote);
-        }}
+        value={cartRemarks}
+        onChangeText={setCartRemarks}
         multiline
         numberOfLines={3}
         textAlignVertical="top"
@@ -895,6 +878,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     right: 20,
+    zIndex: 10,
   },
   checkoutButton: {
     borderRadius: 20,
