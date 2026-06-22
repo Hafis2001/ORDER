@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, FlatList, StyleSheet, Keyboard } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,6 +8,23 @@ import { StatusBar } from 'expo-status-bar';
 import { Home, Search, ShoppingBag, ClipboardList, User, Users } from 'lucide-react-native';
 
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from 'react-native-reanimated';
+
+// Optimize all Touchables in the app
+TouchableOpacity.defaultProps = TouchableOpacity.defaultProps || {};
+TouchableOpacity.defaultProps.delayPressIn = 0;
+TouchableOpacity.defaultProps.activeOpacity = 0.7;
+
+// Fix touch interception issues in ScrollViews and FlatLists
+ScrollView.defaultProps = ScrollView.defaultProps || {};
+ScrollView.defaultProps.keyboardShouldPersistTaps = 'handled';
+FlatList.defaultProps = FlatList.defaultProps || {};
+FlatList.defaultProps.keyboardShouldPersistTaps = 'handled';
+
+// App Performance Optimizations for large lists
+FlatList.defaultProps.removeClippedSubviews = true;
+FlatList.defaultProps.initialNumToRender = 10;
+FlatList.defaultProps.maxToRenderPerBatch = 10;
+FlatList.defaultProps.windowSize = 5;
 
 // Import Screens
 import LoginScreen from './src/screens/LoginScreen';

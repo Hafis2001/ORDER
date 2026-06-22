@@ -4,6 +4,7 @@ import {
   TextInput, Alert, KeyboardAvoidingView, Platform, Modal
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 import { ChevronLeft, ShoppingCart, Plus, Minus, Star, ChevronDown } from 'lucide-react-native';
 import { useCart } from '../context/CartContext';
@@ -20,6 +21,7 @@ export default function ItemDetailScreen({ navigation, route }) {
   const [qtyText, setQtyText] = useState('');
   const [remarks, setRemarks] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [zoomVisible, setZoomVisible] = useState(false);
   const qty = getItemQty(item.id, unit.toLowerCase());
   const scrollViewRef = useRef(null);
 
@@ -62,9 +64,31 @@ export default function ItemDetailScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* Image Hero */}
-        <View style={[styles.hero, { backgroundColor: '#FFF' }]}>
+        <TouchableOpacity 
+          activeOpacity={0.9} 
+          onPress={() => setZoomVisible(true)}
+          style={[styles.hero, { backgroundColor: '#FFF' }]}
+        >
           <Image source={{ uri: item.image }} style={styles.heroImg} />
-        </View>
+        </TouchableOpacity>
+
+        {/* Full Screen Image Zoom Modal */}
+        <Modal visible={zoomVisible} transparent={true} animationType="fade" onRequestClose={() => setZoomVisible(false)}>
+          <ImageViewer 
+            imageUrls={[{ url: item.image }]} 
+            enableSwipeDown={true}
+            onCancel={() => setZoomVisible(false)}
+            renderIndicator={() => null}
+            renderHeader={() => (
+              <TouchableOpacity 
+                style={styles.zoomCloseBtn}
+                onPress={() => setZoomVisible(false)}
+              >
+                <Text style={styles.zoomCloseText}>Close</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </Modal>
 
         {/* Details */}
         <View style={styles.details}>
@@ -217,6 +241,11 @@ const styles = StyleSheet.create({
   heroImg: { width: '100%', height: '100%', resizeMode: 'contain' },
   catTag: { position: 'absolute', top: 14, right: 14, backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
   catTagText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
+  zoomOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' },
+  zoomCloseBtn: { position: 'absolute', top: 50, right: 20, zIndex: 10, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 },
+  zoomCloseText: { color: '#FFF', fontSize: 14, fontWeight: 'bold' },
+  zoomScrollContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', width: '100%' },
+  zoomImg: { width: Dimensions.get('window').width, height: Dimensions.get('window').height * 0.8, resizeMode: 'contain' },
   details: { padding: 20 },
   itemName: { fontSize: 20, fontWeight: '900', color: '#1A2A3A' },
   itemWeight: { fontSize: 12, color: '#AAA', marginTop: 4 },
