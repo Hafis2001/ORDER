@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   StyleSheet, Text, View, FlatList,
   TouchableOpacity, TextInput, Alert, ScrollView,
-  ActivityIndicator, Image, Modal,
+  ActivityIndicator, Image, Modal, KeyboardAvoidingView,
   Platform, Dimensions, PanResponder, InteractionManager
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +11,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withSequence,
-  interpolate,
   Extrapolate
 } from 'react-native-reanimated';
 
@@ -94,7 +93,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
   return (
     <View style={[styles.card, inCart && styles.cardInCart, inputOpen && styles.cardInputOpen]}>
       {/* Tappable area: image */}
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+      <TouchableOpacity  activeOpacity={0.7}
         style={{ flex: 1, width: '100%', backgroundColor: '#FFF' }}
         onPress={onPress}
         
@@ -117,7 +116,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
       {/* Info & Button Row */}
       <View style={styles.cardBody}>
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={{ flex: 1 }} onPress={onPress}>
+        <TouchableOpacity  activeOpacity={0.7} style={{ flex: 1 }} onPress={onPress}>
           <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
         </TouchableOpacity>
 
@@ -130,7 +129,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
               style={[styles.plusBtnGrid, inCart && styles.plusBtnInCartGrid]} 
               onPress={openInput} 
               hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-              delayPressIn={0} activeOpacity={0.7}
+               activeOpacity={0.7}
             >
               {inCart ? (
                 <Text style={styles.inCartQtyTxt}>{parseFloat(Number(totalQtyInCart || 0).toFixed(3))}</Text>
@@ -143,16 +142,30 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
       {/* Add Item Modal */}
       <Modal visible={inputOpen} transparent={true} animationType="fade">
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          style={styles.modalOverlay}
+        >
           <View style={styles.addItemModalContent}>
+            {/* Close Button */}
+            <TouchableOpacity 
+              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+              onPress={closeInput}
+              activeOpacity={0.7}
+              
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <X size={24} color="#333" />
+            </TouchableOpacity>
+
             <Text style={styles.addItemModalTitle}>Add {item.name}</Text>
             
             {/* Unit Dropdown */}
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
+            <TouchableOpacity  activeOpacity={0.7} 
               style={styles.unitDropdownBtnGrid} 
               onPress={() => setModalVisible(true)}
               activeOpacity={0.7}
-              delayPressIn={0}
+              
             >
               <Text style={styles.unitDropdownTxt}>Unit: {unit}</Text>
               <ChevronDown size={14} color="#8E24AA" />
@@ -186,7 +199,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
                 style={styles.cancelBtnGrid} 
                 onPress={closeInput}
                 activeOpacity={0.7}
-                delayPressIn={0}
+                
               >
                 <Text style={styles.cancelBtnTxt}>Cancel</Text>
               </TouchableOpacity>
@@ -194,21 +207,21 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
                 style={styles.addBtnGrid} 
                 onPress={handleAdd}
                 activeOpacity={0.7}
-                delayPressIn={0}
+                
               >
                 <Text style={styles.addBtnTxt}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
+        <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Unit</Text>
             {UNITS.map(u => (
-              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
+              <TouchableOpacity  activeOpacity={0.7} 
                 key={u} 
                 style={styles.unitOption} 
                 onPress={() => {
@@ -352,13 +365,13 @@ export default function CategoryProductsScreen({ navigation, route }) {
       <View
         style={[styles.header, { backgroundColor: '#8E24AA' }]}
       >
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
+        <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <ChevronLeft size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Products</Text>
         
         <Animated.View style={cartAnimStyle}>
-          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
+          <TouchableOpacity  activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
             <ShoppingCart size={22} color="#FFF" />
             {productCount > 0 && (
               <View style={styles.cartBadge}>
@@ -386,12 +399,12 @@ export default function CategoryProductsScreen({ navigation, route }) {
       <View style={styles.filterWrap}>
         <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
           {categories.map(cat => (
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+            <TouchableOpacity  activeOpacity={0.7}
               key={cat}
               style={[styles.filterChip, activeCategory === cat && styles.filterChipActive]}
               onPress={() => handleCategoryChange(cat)}
               activeOpacity={0.7}
-              delayPressIn={0}
+              
             >
               <Text style={[styles.filterText, activeCategory === cat && styles.filterTextActive]}>
                 {cat}

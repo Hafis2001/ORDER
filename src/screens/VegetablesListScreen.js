@@ -58,7 +58,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
   return (
     <View style={[styles.card, inCart && styles.cardInCart]}>
       {/* Left tappable area: image + info */}
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+      <TouchableOpacity  activeOpacity={0.7}
         style={{ flex: 1, flexDirection: inputOpen ? 'column' : 'row' }}
         onPress={onPress}
         
@@ -100,7 +100,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
         <View style={styles.inputPanel}>
           {/* Unit chips: Kg / Box */}
           <View style={styles.unitRow}>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+            <TouchableOpacity  activeOpacity={0.7}
               style={[styles.unitChip, unit === 'Kg' && styles.unitChipOn]}
               onPress={() => {
                 setUnit('Kg');
@@ -110,7 +110,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
             >
               <Text style={[styles.unitChipTxt, unit === 'Kg' && styles.unitChipTxtOn]}>Kg</Text>
             </TouchableOpacity>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+            <TouchableOpacity  activeOpacity={0.7}
               style={[styles.unitChip, unit === 'Box' && styles.unitChipOn]}
               onPress={() => {
                 setUnit('Box');
@@ -136,16 +136,16 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
           {/* Cancel + Add buttons */}
           <View style={styles.actionRow}>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.cancelBtn} onPress={closeInput}>
+            <TouchableOpacity  activeOpacity={0.7} style={styles.cancelBtn} onPress={closeInput}>
               <X size={16} color="#999" />
             </TouchableOpacity>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.addBtn} onPress={handleAdd}>
+            <TouchableOpacity  activeOpacity={0.7} style={styles.addBtn} onPress={handleAdd}>
               <ShoppingCart size={16} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
+        <TouchableOpacity  activeOpacity={0.7} 
           style={[styles.plusBtn, inCart && styles.plusBtnInCart]} 
           onPress={openInput} 
           
@@ -182,11 +182,11 @@ export default function VegetablesListScreen({ navigation }) {
       <View
         style={[styles.header, { backgroundColor: '#8E24AA' }]}
       >
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
+        <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <ChevronLeft size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}> Products</Text>
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
+        <TouchableOpacity  activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
           <ShoppingCart size={22} color="#FFF" />
           {productCount > 0 && (
             <View style={styles.cartBadge}>

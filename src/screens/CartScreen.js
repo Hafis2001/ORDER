@@ -36,12 +36,12 @@ const CartItemRow = React.memo(({ item, deleteItem }) => {
           <View style={styles.itemHeader}>
             <View>
               <Text style={styles.itemName}>{item.name}</Text>
-              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => setModalVisible(true)} style={styles.unitDropdown}>
+              <TouchableOpacity  activeOpacity={0.7} onPress={() => setModalVisible(true)} style={styles.unitDropdown}>
                 <Text style={styles.unitText}>{item.unit}</Text>
                 <MaterialIcons name="arrow-drop-down" size={16} color="#8E24AA" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => deleteItem(item.cartKey)}>
+            <TouchableOpacity  activeOpacity={0.7} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => deleteItem(item.cartKey)}>
               <Trash2 size={18} color="#999" />
             </TouchableOpacity>
           </View>
@@ -56,11 +56,11 @@ const CartItemRow = React.memo(({ item, deleteItem }) => {
       </View>
 
       <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
+        <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Unit</Text>
             {UNITS.map(u => (
-              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
+              <TouchableOpacity  activeOpacity={0.7} 
                 key={u} 
                 style={styles.unitOption} 
                 onPress={() => {
@@ -127,7 +127,7 @@ function CartQtyInput({ item }) {
 
   return (
     <View style={styles.quantityContainer}>
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => removeFromCart(item.id, item.unit)}>
+      <TouchableOpacity  activeOpacity={0.7} style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => removeFromCart(item.id, item.unit)}>
         <Minus size={16} color="#8E24AA" />
       </TouchableOpacity>
       <TextInput 
@@ -139,7 +139,7 @@ function CartQtyInput({ item }) {
         maxLength={5}
         selectTextOnFocus
       />
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => addToCart(item, item.unit, 1)}>
+      <TouchableOpacity  activeOpacity={0.7} style={styles.qtyButton} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={() => addToCart(item, item.unit, 1)}>
         <Plus size={16} color="#8E24AA" />
       </TouchableOpacity>
     </View>
@@ -285,7 +285,7 @@ function TruckOrderButton({ onAnimationEnd }) {
   };
 
   return (
-    <TouchableOpacity delayPressIn={0} activeOpacity={0.7}  onPress={handlePress} style={truckBtnStyles.btn}>
+    <TouchableOpacity  activeOpacity={0.7}  onPress={handlePress} style={truckBtnStyles.btn}>
       <View
         style={[StyleSheet.absoluteFillObject, { backgroundColor: '#8E24AA' }]}
       />
@@ -400,7 +400,7 @@ function SuccessOverlay({ onFinish, itemsDesc }) {
   return (
     <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#FFFFFF', zIndex: 9999, opacity }]}>
       {/* Top Close Button */}
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={onFinish} style={{ position: 'absolute', top: 50, left: 20, zIndex: 10 }}>
+      <TouchableOpacity  activeOpacity={0.7} onPress={onFinish} style={{ position: 'absolute', top: 50, left: 20, zIndex: 10 }}>
         <MaterialIcons name="close" size={28} color="#555" />
       </TouchableOpacity>
 
@@ -452,7 +452,7 @@ function SuccessOverlay({ onFinish, itemsDesc }) {
             </Text>
           </View>
 
-          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={onFinish} style={{ marginTop: 40 }}>
+          <TouchableOpacity  activeOpacity={0.7} onPress={onFinish} style={{ marginTop: 40 }}>
             <Text style={{ color: '#6B7280', fontSize: 15, fontWeight: '500' }}>
               View order details <MaterialIcons name="chevron-right" size={16} />
             </Text>
@@ -573,7 +573,7 @@ function OrderNoteInput() {
         />
       )}
       <View style={styles.header}>
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backButton}>
           <ChevronLeft size={28} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Order Review</Text>
@@ -599,7 +599,7 @@ function OrderNoteInput() {
         {cartItems.length > 0 ? (
           <TruckOrderButton onAnimationEnd={handlePlaceOrder} />
         ) : (
-          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.checkoutButton} onPress={handlePlaceOrder}>
+          <TouchableOpacity  activeOpacity={0.7} style={styles.checkoutButton} onPress={handlePlaceOrder}>
             <View
               style={[styles.checkoutGradient, { backgroundColor: '#CCC' }]}
             >

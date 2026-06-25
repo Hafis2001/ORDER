@@ -134,10 +134,10 @@ const JSDatePicker = ({ value, onChange, onClose }) => {
             />
           </View>
           <View style={jsStyles.btnRow}>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={onClose} style={[jsStyles.btn, jsStyles.cancelBtn]}>
+            <TouchableOpacity  activeOpacity={0.7} onPress={onClose} style={[jsStyles.btn, jsStyles.cancelBtn]}>
               <Text style={jsStyles.btnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={handleConfirm} style={[jsStyles.btn, jsStyles.confirmBtn]}>
+            <TouchableOpacity  activeOpacity={0.7} onPress={handleConfirm} style={[jsStyles.btn, jsStyles.confirmBtn]}>
               <Text style={[jsStyles.btnText, { color: '#FFF' }]}>Confirm</Text>
             </TouchableOpacity>
           </View>
@@ -398,7 +398,7 @@ export default function CustomerLedgerDetailScreen() {
             <LinearGradient colors={Gradients.primary} style={styles.headerCard}>
               <View style={styles.headerTop}>
                 {ledgerData && (
-                  <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
+                  <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color="#FFF" />
                   </TouchableOpacity>
                 )}
@@ -412,13 +412,13 @@ export default function CustomerLedgerDetailScreen() {
                       : "All Transactions"}
                   </Animated.Text>
                 </View>
-                <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={refreshAll} style={styles.iconAction}>
+                <TouchableOpacity  activeOpacity={0.7} onPress={refreshAll} style={styles.iconAction}>
                   <Ionicons name="refresh" size={22} color="#FFF" />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.dateActions}>
-                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+                <TouchableOpacity  activeOpacity={0.7}
                   onPress={() => handleDatePickerOpen("from")}
                   style={styles.dateButton}
                 >
@@ -426,7 +426,7 @@ export default function CustomerLedgerDetailScreen() {
                   <Text style={styles.dateButtonText}>From Date</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+                <TouchableOpacity  activeOpacity={0.7}
                   onPress={() => handleDatePickerOpen("to")}
                   style={styles.dateButton}
                 >

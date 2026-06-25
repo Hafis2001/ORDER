@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  StyleSheet, Text, View, ScrollView, TouchableOpacity,
-  Dimensions, TextInput, FlatList, Animated as RNAnimated,
-  ActivityIndicator, Alert, Image, Platform
+  StyleSheet, Text, View, TouchableOpacity, Image,
+  ScrollView, ActivityIndicator, Dimensions, FlatList,
+  RefreshControl, Platform, TextInput, Animated as RNAnimated
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScrollToTop } from '@react-navigation/native';
@@ -122,7 +122,7 @@ const BannerItem = React.memo(function BannerItem({ banner, token, navigation, i
         </View>
       )}
       
-      <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.slideCTA} onPress={() => navigation.navigate('CategoryProducts', { category: banner.cat || 'All' })} activeOpacity={0.7} delayPressIn={0}>
+      <TouchableOpacity  activeOpacity={0.7} style={styles.slideCTA} onPress={() => navigation.navigate('CategoryProducts', { category: banner.cat || 'All' })} activeOpacity={0.7} >
         <Text style={styles.slideCTAText}>Shop Now</Text>
       </TouchableOpacity>
     </View>
@@ -134,7 +134,7 @@ const ProductCard = React.memo(function ProductCard({ item, onPress }) {
 
   return (
     <View style={styles.card}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} delayPressIn={0} style={styles.cardTouch}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}  style={styles.cardTouch}>
         <View style={styles.imgContainer}>
           <Image
             source={{ uri: item.image }}
@@ -175,7 +175,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
             <Text style={styles.greetSub}>What are you looking for today?</Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.cartBtn} onPress={() => navigation.navigate('Cart')} activeOpacity={0.7} delayPressIn={0}>
+            <TouchableOpacity  activeOpacity={0.7} style={styles.cartBtn} onPress={() => navigation.navigate('Cart')} activeOpacity={0.7} >
               <ShoppingCart size={18} color="#8E24AA" />
               {productCount > 0 && (
                 <View style={styles.badge}>
@@ -183,7 +183,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.logoutBtn} onPress={() => navigation.navigate('Profile')} activeOpacity={0.7} delayPressIn={0}>
+            <TouchableOpacity  activeOpacity={0.7} style={styles.logoutBtn} onPress={() => navigation.navigate('Profile')} activeOpacity={0.7} >
               <User size={20} color="#FFF" />
             </TouchableOpacity>
           </View>
@@ -200,7 +200,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => setShowFilters(!showFilters)} style={styles.filterIconBtn} activeOpacity={0.7} delayPressIn={0}>
+            <TouchableOpacity  activeOpacity={0.7} onPress={() => setShowFilters(!showFilters)} style={styles.filterIconBtn} activeOpacity={0.7} >
               {showFilters ? <X size={18} color="#AAA" /> : <Filter size={18} color="#8E24AA" />}
             </TouchableOpacity>
           </View>
@@ -211,12 +211,12 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
           <View style={styles.filterWrap}>
             <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               {categories.map(cat => (
-                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+                <TouchableOpacity  activeOpacity={0.7}
                   key={cat}
                   style={[styles.filterChip, activeCategory === cat && styles.filterChipActive]}
                   onPress={() => setActiveCategory(cat)}
                   activeOpacity={0.7}
-                  delayPressIn={0}
+                  
                 >
                   <Text style={[styles.filterText, activeCategory === cat && styles.filterTextActive]}>
                     {cat}
@@ -238,7 +238,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
         <Text style={[styles.secTitle, { paddingHorizontal: 16, marginBottom: 10 }]}>Categories</Text>
         <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
           {categoryCards?.map(cat => (
-            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+            <TouchableOpacity  activeOpacity={0.7}
               key={cat.name}
               style={styles.categoryCardRow}
               
@@ -256,7 +256,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
       {/* Title Section */}
       <View style={styles.secRow}>
         <Text style={styles.secTitle}>Latest Purchases</Text>
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.navigate('CategoryProducts', { category: 'All' })} activeOpacity={0.7} delayPressIn={0}>
+        <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.navigate('CategoryProducts', { category: 'All' })} activeOpacity={0.7} >
           <Text style={{ fontSize: 12, fontWeight: '700', color: '#8E24AA' }}>See All</Text>
         </TouchableOpacity>
       </View>

@@ -23,7 +23,7 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
   const statusColor = getStatusColor(order.status);
   
   return (
-    <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.card}  onPress={() => onViewDetails(order)}>
+    <TouchableOpacity  activeOpacity={0.7} style={styles.card}  onPress={() => onViewDetails(order)}>
       {/* Top Header: Date and Status */}
       <View style={styles.cardHeader}>
         <View style={styles.orderDateWrap}>
@@ -201,7 +201,7 @@ export default function OrdersScreen({ navigation }) {
                 <Text style={styles.modalTitle}>Order Details</Text>
                 <Text style={styles.modalSub}>{selectedOrder?.id}</Text>
               </View>
-              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => setSelectedOrder(null)} style={styles.closeBtn}>
+              <TouchableOpacity  activeOpacity={0.7} onPress={() => setSelectedOrder(null)} style={styles.closeBtn}>
                 <X size={24} color="#555" />
               </TouchableOpacity>
             </View>

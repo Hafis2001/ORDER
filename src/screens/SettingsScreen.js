@@ -7,7 +7,7 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   const OptionItem = ({ title, isDestructive = false }) => (
-    <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.optionCard}>
+    <TouchableOpacity  activeOpacity={0.7} style={styles.optionCard}>
       <Text style={[styles.optionTitle, isDestructive && styles.destructiveText]}>
         {title}
       </Text>
@@ -35,7 +35,7 @@ const SettingsScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.logoutSection}>
-          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity  activeOpacity={0.7} style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Log Out</Text>
           </TouchableOpacity>
         </View>
