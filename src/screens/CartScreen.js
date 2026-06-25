@@ -580,7 +580,7 @@ function OrderNoteInput() {
         <View style={{ width: 44 }} />
       </View>
 
-      <FlatList
+      <FlatList keyboardShouldPersistTaps="handled"
         data={cartItems}
         keyExtractor={keyExtractor}
         renderItem={renderCartItem}

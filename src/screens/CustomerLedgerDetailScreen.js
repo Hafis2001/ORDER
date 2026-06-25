@@ -497,7 +497,7 @@ export default function CustomerLedgerDetailScreen() {
 
           <Text style={styles.transHeading}>TRANSACTIONS</Text>
 
-          <FlatList initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
+          <FlatList keyboardShouldPersistTaps="handled" initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
             data={filteredLedger}
             keyExtractor={(_, i) => i.toString()}
             renderItem={renderItem}

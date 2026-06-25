@@ -129,9 +129,8 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
             <TouchableOpacity 
               style={[styles.plusBtnGrid, inCart && styles.plusBtnInCartGrid]} 
               onPress={openInput} 
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              activeOpacity={0.7}
-              delayPressIn={0}
+              hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+              delayPressIn={0} activeOpacity={0.7}
             >
               {inCart ? (
                 <Text style={styles.inCartQtyTxt}>{parseFloat(Number(totalQtyInCart || 0).toFixed(3))}</Text>
@@ -331,28 +330,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
     }, 10);
   }, [activeCategory]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        // Only capture definitive horizontal swipes
-        return Math.abs(gestureState.dx) > 30 && Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        const currentIndex = categories.indexOf(activeCategory);
-        if (gestureState.dx > 50) {
-          // Swipe Right -> Previous category
-          if (currentIndex > 0) {
-            handleCategoryChange(categories[currentIndex - 1]);
-          }
-        } else if (gestureState.dx < -50) {
-          // Swipe Left -> Next category
-          if (currentIndex >= 0 && currentIndex < categories.length - 1) {
-            handleCategoryChange(categories[currentIndex + 1]);
-          }
-        }
-      },
-    })
-  ).current;
+  // PanResponder removed to fix iOS tap interference
 
   const data = listCategory === 'All'
     ? products
@@ -406,7 +384,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
 
       {/* Category Filter Chips */}
       <View style={styles.filterWrap}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+        <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
           {categories.map(cat => (
             <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               key={cat}
@@ -427,7 +405,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
       {loading || isTransitioning ? (
         <ActivityIndicator size="large" color="#8E24AA" style={{ marginTop: 40 }} />
       ) : (
-        <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+        <View style={{ flex: 1 }}>
           <FlatList initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
           key="2-col-grid" // Add key to force re-render when changing numColumns if ever needed
           data={filtered}

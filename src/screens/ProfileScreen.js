@@ -78,7 +78,7 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Header Section */}
         <View
           style={[styles.header, { backgroundColor: '#8E24AA', paddingTop: insets.top + 20 }]}
@@ -127,7 +127,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
           </TouchableOpacity>
           
-          <Text style={styles.version}>App Version 3.3.3 • Build 2026</Text>
+          <Text style={styles.version}>App Version 4.1.1 • Build 2026</Text>
         </View>
       </ScrollView>
     </View>

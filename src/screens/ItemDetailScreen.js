@@ -58,7 +58,7 @@ export default function ItemDetailScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
+      <ScrollView keyboardShouldPersistTaps="handled" 
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={{ paddingBottom: 120 }}

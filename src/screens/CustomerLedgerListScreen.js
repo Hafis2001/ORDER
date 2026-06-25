@@ -154,7 +154,7 @@ export default function CustomerLedgerListScreen() {
           <Text style={styles.emptyText}>No customers found.</Text>
         </View>
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={ledgers}
           keyExtractor={keyExtractor}
           renderItem={renderCard}

@@ -61,7 +61,7 @@ function BannerSlider({ banners, navigation }) {
 
   return (
     <View>
-      <ScrollView
+      <ScrollView keyboardShouldPersistTaps="handled"
         ref={scrollRef}
         horizontal
         pagingEnabled={false}
@@ -209,7 +209,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
         {/* Category Filters */}
         {showFilters && (
           <View style={styles.filterWrap}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+            <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               {categories.map(cat => (
                 <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
                   key={cat}
@@ -236,7 +236,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
       {/* Category Horizontal Section */}
       <View style={styles.categorySection}>
         <Text style={[styles.secTitle, { paddingHorizontal: 16, marginBottom: 10 }]}>Categories</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
+        <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
           {categoryCards?.map(cat => (
             <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               key={cat.name}

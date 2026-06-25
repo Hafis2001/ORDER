@@ -174,7 +174,7 @@ export default function OrdersScreen({ navigation }) {
           <Text style={{ marginTop: 10, color: '#999', fontSize: 16 }}>No orders found.</Text>
         </View>
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={orders}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
@@ -206,7 +206,7 @@ export default function OrdersScreen({ navigation }) {
               </TouchableOpacity>
             </View>
             
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
+            <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
               {selectedOrder?.itemsList.map((item, idx) => (
                 <View key={idx} style={styles.detailItemRow}>
                   <View style={styles.detailItemLeft}>
