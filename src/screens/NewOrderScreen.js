@@ -242,7 +242,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               key={cat.name}
               style={styles.categoryCardRow}
               
-              onPress={() => navigation.navigate('CategoryProducts', { category: cat.name, products })}
+              onPress={() => navigation.navigate('CategoryProducts', { category: cat.name })}
             >
               <Image source={{ uri: cat.image }} style={styles.categoryCardImgRow} resizeMode="cover" />
               <View style={styles.categoryCardOverlayRow}>
@@ -256,7 +256,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
       {/* Title Section */}
       <View style={styles.secRow}>
         <Text style={styles.secTitle}>Latest Purchases</Text>
-        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.navigate('CategoryProducts', { category: 'All', products })} activeOpacity={0.7} delayPressIn={0}>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.navigate('CategoryProducts', { category: 'All' })} activeOpacity={0.7} delayPressIn={0}>
           <Text style={{ fontSize: 12, fontWeight: '700', color: '#8E24AA' }}>See All</Text>
         </TouchableOpacity>
       </View>

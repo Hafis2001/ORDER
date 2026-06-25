@@ -3,7 +3,7 @@
     "scheme": "goldenrainest",
     "name": "GOLDEN RAIN EST",
     "slug": "golden-rain-est",
-    "version": "3.3.3",
+    "version": "4.4.3",
     "orientation": "portrait",
     "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "dark",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.IMCBS.goldenrainest",
-      "buildNumber": "9",
+      "buildNumber": "10",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }

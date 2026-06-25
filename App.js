@@ -9,32 +9,7 @@ import { Home, Search, ShoppingBag, ClipboardList, User, Users } from 'lucide-re
 
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from 'react-native-reanimated';
 
-// ─── Global Touch & Performance Fixes ──────────────────────────────────────
-
-// 1. Remove ALL press delays on TouchableOpacity buttons (Android + iOS)
-TouchableOpacity.defaultProps = TouchableOpacity.defaultProps || {};
-TouchableOpacity.defaultProps.delayPressIn = 0;
-TouchableOpacity.defaultProps.delayPressOut = 0;  // iOS: remove ghost delay on release
-TouchableOpacity.defaultProps.activeOpacity = 0.7;
-
-// 2. iOS CRITICAL FIX: prevent ScrollView/FlatList from stealing the touch event.
-//    Without this, iOS waits ~350ms to decide if it's a scroll or a tap,
-//    causing buttons to need 3-4 taps before responding.
-TouchableOpacity.defaultProps.cancelsTouchesInView = false;
-
-// 3. Fix keyboard-related touch swallowing in ScrollViews and FlatLists
-ScrollView.defaultProps = ScrollView.defaultProps || {};
-ScrollView.defaultProps.keyboardShouldPersistTaps = 'handled';
-ScrollView.defaultProps.directionalLockEnabled = true;
-FlatList.defaultProps = FlatList.defaultProps || {};
-FlatList.defaultProps.keyboardShouldPersistTaps = 'handled';
-FlatList.defaultProps.directionalLockEnabled = true;
-
-// 4. FlatList rendering performance
-FlatList.defaultProps.removeClippedSubviews = true;
-FlatList.defaultProps.initialNumToRender = 10;
-FlatList.defaultProps.maxToRenderPerBatch = 10;
-FlatList.defaultProps.windowSize = 5;
+// Global Touch Fixes were applied directly to components via script.
 
 // Import Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -92,7 +67,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
   if (keyboardVisible) return null;
 
   return (
-    <View style={styles.tabBarWrapper}>
+    <View style={styles.tabBarWrapper} pointerEvents="box-none">
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -109,7 +84,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
           if (isCenter) {
             return (
               // No pointerEvents restriction — iOS needs full touch pass-through on raised button
-              <View key={route.key} style={styles.centerSlot}>
+              <View key={route.key} style={styles.centerSlot} pointerEvents="box-none">
                 <TouchableOpacity
                   style={styles.centerBtn}
                   onPress={onPress}

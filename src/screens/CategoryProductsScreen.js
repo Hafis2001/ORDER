@@ -109,7 +109,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
         {/* Out of Stock overlay */}
         {isOutOfStock && (
-          <View style={[styles.cardImage, styles.outOfStockOverlay]}>
+          <View style={[styles.cardImage, styles.outOfStockOverlay, { position: 'absolute', top: 0, left: 0 }]}>
             <Text style={styles.outOfStockOverlayText}>OUT OF{`\n`}STOCK</Text>
           </View>
         )}
@@ -487,7 +487,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#EFEFEF',
-    overflow: 'hidden',
     height: 165, // Fixed height to standardize
   },
   cardInputOpen: {
@@ -497,7 +496,12 @@ const styles = StyleSheet.create({
     borderColor: '#8E24AA',
     backgroundColor: '#F8F4FF',
   },
-  cardImage: { width: '100%', height: '100%' },
+  cardImage: { 
+    width: '100%', 
+    height: '100%',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
   
   cardBody: {
     flexDirection: 'row',
