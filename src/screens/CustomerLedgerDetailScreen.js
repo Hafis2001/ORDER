@@ -134,10 +134,10 @@ const JSDatePicker = ({ value, onChange, onClose }) => {
             />
           </View>
           <View style={jsStyles.btnRow}>
-            <TouchableOpacity onPress={onClose} style={[jsStyles.btn, jsStyles.cancelBtn]}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={onClose} style={[jsStyles.btn, jsStyles.cancelBtn]}>
               <Text style={jsStyles.btnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleConfirm} style={[jsStyles.btn, jsStyles.confirmBtn]}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={handleConfirm} style={[jsStyles.btn, jsStyles.confirmBtn]}>
               <Text style={[jsStyles.btnText, { color: '#FFF' }]}>Confirm</Text>
             </TouchableOpacity>
           </View>
@@ -398,7 +398,7 @@ export default function CustomerLedgerDetailScreen() {
             <LinearGradient colors={Gradients.primary} style={styles.headerCard}>
               <View style={styles.headerTop}>
                 {ledgerData && (
-                  <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                  <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color="#FFF" />
                   </TouchableOpacity>
                 )}
@@ -412,13 +412,13 @@ export default function CustomerLedgerDetailScreen() {
                       : "All Transactions"}
                   </Animated.Text>
                 </View>
-                <TouchableOpacity onPress={refreshAll} style={styles.iconAction}>
+                <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={refreshAll} style={styles.iconAction}>
                   <Ionicons name="refresh" size={22} color="#FFF" />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.dateActions}>
-                <TouchableOpacity
+                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
                   onPress={() => handleDatePickerOpen("from")}
                   style={styles.dateButton}
                 >
@@ -426,7 +426,7 @@ export default function CustomerLedgerDetailScreen() {
                   <Text style={styles.dateButtonText}>From Date</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
                   onPress={() => handleDatePickerOpen("to")}
                   style={styles.dateButton}
                 >
@@ -497,7 +497,7 @@ export default function CustomerLedgerDetailScreen() {
 
           <Text style={styles.transHeading}>TRANSACTIONS</Text>
 
-          <FlatList
+          <FlatList initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
             data={filteredLedger}
             keyExtractor={(_, i) => i.toString()}
             renderItem={renderItem}

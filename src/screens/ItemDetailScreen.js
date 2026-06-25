@@ -46,11 +46,11 @@ export default function ItemDetailScreen({ navigation, route }) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ChevronLeft size={22} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Product Detail</Text>
-        <TouchableOpacity style={styles.cartHeaderBtn} onPress={() => navigation.navigate('Cart')}>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.cartHeaderBtn} onPress={() => navigation.navigate('Cart')}>
           <ShoppingCart size={20} color="#8E24AA" />
           {productCount > 0 && (
             <View style={styles.badge}><Text style={styles.badgeText}>{productCount > 99 ? '99+' : productCount}</Text></View>
@@ -64,8 +64,8 @@ export default function ItemDetailScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* Image Hero */}
-        <TouchableOpacity 
-          activeOpacity={0.9} 
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
+           
           onPress={() => setZoomVisible(true)}
           style={[styles.hero, { backgroundColor: '#FFF' }]}
         >
@@ -80,7 +80,7 @@ export default function ItemDetailScreen({ navigation, route }) {
             onCancel={() => setZoomVisible(false)}
             renderIndicator={() => null}
             renderHeader={() => (
-              <TouchableOpacity 
+              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
                 style={styles.zoomCloseBtn}
                 onPress={() => setZoomVisible(false)}
               >
@@ -116,7 +116,7 @@ export default function ItemDetailScreen({ navigation, route }) {
 
           {/* Unit Toggle */}
           <Text style={styles.unitLabel}>Select unit</Text>
-          <TouchableOpacity 
+          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
             style={styles.unitDropdownBtn} 
             onPress={() => setModalVisible(true)}
           >
@@ -125,11 +125,11 @@ export default function ItemDetailScreen({ navigation, route }) {
           </TouchableOpacity>
 
           <Modal visible={modalVisible} transparent={true} animationType="fade">
-            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Select Unit</Text>
                 {UNITS.map(u => (
-                  <TouchableOpacity 
+                  <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
                     key={u} 
                     style={styles.unitOption} 
                     onPress={() => {
@@ -147,7 +147,7 @@ export default function ItemDetailScreen({ navigation, route }) {
           {/* Quantity Input */}
           <Text style={styles.unitLabel}>Quantity</Text>
           <View style={styles.qtyInputRow}>
-            <TouchableOpacity
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               style={styles.qtyStepBtn}
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               onPress={() => {
@@ -171,7 +171,7 @@ export default function ItemDetailScreen({ navigation, route }) {
                 }, 200);
               }}
             />
-            <TouchableOpacity
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               style={styles.qtyStepBtn}
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               onPress={() => {
@@ -217,7 +217,7 @@ export default function ItemDetailScreen({ navigation, route }) {
             </View>
           </View>
         ) : (
-          <TouchableOpacity style={styles.addBtn} onPress={handleAddToCart} activeOpacity={0.85}>
+          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.addBtn} onPress={handleAddToCart} >
             <View style={[styles.addBtnGrad, { backgroundColor: '#8E24AA' }]}>
               <ShoppingCart size={18} color="#FFF" />
               <Text style={styles.addBtnText}>Add to Cart</Text>

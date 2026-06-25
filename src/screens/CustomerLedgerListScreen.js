@@ -26,8 +26,8 @@ const LedgerCard = React.memo(function LedgerCard({ item, onPress }) {
   const latestBalance = entries.length > 0 ? entries[entries.length - 1].balance : 0;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+      
       style={styles.card}
       onPress={() => onPress(item, customerName)}
     >

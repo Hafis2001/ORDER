@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import {
   StyleSheet, Text, View, FlatList,
   TouchableOpacity, Image, TextInput, Alert,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -56,37 +57,42 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
   return (
     <View style={[styles.card, inCart && styles.cardInCart]}>
-      <TouchableOpacity style={{ flex: 1, flexDirection: inputOpen ? 'column' : 'row' }} onPress={onPress} activeOpacity={0.9}>
-      {/* Image Container */}
-      <View style={inputOpen ? { width: '100%', height: 100 } : { width: 100, height: 110 }}>
-        <Image
-          source={{ uri: item.image }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-        {inCart && (
-          <View style={styles.inCartBadge}>
-            <ShoppingCart size={10} color="#FFF" />
-            <Text style={styles.inCartText}>{Number(totalQtyInCart || 0).toFixed(3)}</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Bottom: info */}
-      <View style={styles.cardBody}>
-        <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-        <View style={[
-          styles.stockBadge,
-          { backgroundColor: item.stock === 'In Stock' ? '#E8F8EF' : '#FDECEA' }
-        ]}>
-          <Text style={[
-            styles.stockText,
-            { color: item.stock === 'In Stock' ? '#27AE60' : '#E74C3C' }
-          ]}>
-            {item.stock}
-          </Text>
+      {/* Left tappable area: image + info */}
+      <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+        style={{ flex: 1, flexDirection: inputOpen ? 'column' : 'row' }}
+        onPress={onPress}
+        
+      >
+        {/* Image Container */}
+        <View style={inputOpen ? { width: '100%', height: 100 } : { width: 100, height: 110 }}>
+          <Image
+            source={{ uri: item.image }}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
+          {inCart && (
+            <View style={styles.inCartBadge}>
+              <ShoppingCart size={10} color="#FFF" />
+              <Text style={styles.inCartText}>{Number(totalQtyInCart || 0).toFixed(3)}</Text>
+            </View>
+          )}
         </View>
-      </View>
+
+        {/* Info */}
+        <View style={styles.cardBody}>
+          <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
+          <View style={[
+            styles.stockBadge,
+            { backgroundColor: item.stock === 'In Stock' ? '#E8F8EF' : '#FDECEA' }
+          ]}>
+            <Text style={[
+              styles.stockText,
+              { color: item.stock === 'In Stock' ? '#27AE60' : '#E74C3C' }
+            ]}>
+              {item.stock}
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
 
       {/* Right: + button OR inline input panel */}
@@ -94,7 +100,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
         <View style={styles.inputPanel}>
           {/* Unit chips: Kg / Box */}
           <View style={styles.unitRow}>
-            <TouchableOpacity
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               style={[styles.unitChip, unit === 'Kg' && styles.unitChipOn]}
               onPress={() => {
                 setUnit('Kg');
@@ -104,7 +110,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
             >
               <Text style={[styles.unitChipTxt, unit === 'Kg' && styles.unitChipTxtOn]}>Kg</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
               style={[styles.unitChip, unit === 'Box' && styles.unitChipOn]}
               onPress={() => {
                 setUnit('Box');
@@ -130,19 +136,19 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
 
           {/* Cancel + Add buttons */}
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={closeInput}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.cancelBtn} onPress={closeInput}>
               <X size={16} color="#999" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.addBtn} onPress={handleAdd}>
               <ShoppingCart size={16} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <TouchableOpacity 
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
           style={[styles.plusBtn, inCart && styles.plusBtnInCart]} 
           onPress={openInput} 
-          activeOpacity={0.85}
+          
         >
           {inCart ? <Text style={styles.editBtnTxt}>Edit</Text> : <Plus size={20} color="#FFF" />}
         </TouchableOpacity>
@@ -167,16 +173,20 @@ export default function VegetablesListScreen({ navigation }) {
   const keyExtractor = useCallback(item => item.id.toString(), []);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView
+      style={[styles.container, { paddingTop: insets.top }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
       {/* Header */}
       <View
         style={[styles.header, { backgroundColor: '#8E24AA' }]}
       >
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <ChevronLeft size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}> Products</Text>
-        <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
           <ShoppingCart size={22} color="#FFF" />
           {productCount > 0 && (
             <View style={styles.cartBadge}>
@@ -199,19 +209,21 @@ export default function VegetablesListScreen({ navigation }) {
       </View>
 
       {/* List */}
-      <FlatList
+      <FlatList initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
         data={filtered}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         initialNumToRender={6}
         maxToRenderPerBatch={6}
         windowSize={5}
         removeClippedSubviews={true}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

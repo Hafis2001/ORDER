@@ -40,7 +40,7 @@ const InfoRow = ({ icon: Icon, label, value, isLast = false }) => (
 );
 
 const ActionItem = ({ icon: Icon, label, onPress, color = '#333' }) => (
-  <TouchableOpacity style={styles.actionItem} onPress={onPress}>
+  <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.actionItem} onPress={onPress}>
     <View style={[styles.actionIcon, { backgroundColor: color + '15' }]}>
       <Icon size={20} color={color} />
     </View>
@@ -87,7 +87,7 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.profileImage}>
               <Text style={styles.initials}>{getInitials(user?.name)}</Text>
             </View>
-            <TouchableOpacity style={styles.editBadge}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.editBadge}>
               <Settings size={14} color="#FFF" />
             </TouchableOpacity>
           </View>
@@ -118,7 +118,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
 
           {/* Logout Section */}
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.logoutBtn} onPress={handleLogout}>
             <View
               style={styles.logoutGradient}
             >

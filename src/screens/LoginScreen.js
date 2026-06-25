@@ -138,7 +138,7 @@ export default function LoginScreen({ navigation }) {
                   secureTextEntry={!showPassword}
                   returnKeyType="done"
                 />
-                <TouchableOpacity 
+                <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
                   style={styles.eyeIcon} 
                   onPress={() => setShowPassword(!showPassword)}
                 >
@@ -150,14 +150,14 @@ export default function LoginScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity style={styles.forgotPassword}>
+              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.forgotPassword}>
                 <Text style={styles.forgotText}>Forgot password?</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
                 style={styles.loginButton}
                 onPress={handleLogin}
-                activeOpacity={0.8}
+                
                 disabled={isLoggingIn}
               >
                 <View
@@ -177,7 +177,7 @@ export default function LoginScreen({ navigation }) {
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>Need technical support?</Text>
-              <TouchableOpacity>
+              <TouchableOpacity delayPressIn={0} activeOpacity={0.7}>
                 <Text style={styles.contactText}> Contact Admin</Text>
               </TouchableOpacity>
             </View>

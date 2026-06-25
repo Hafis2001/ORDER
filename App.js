@@ -9,18 +9,28 @@ import { Home, Search, ShoppingBag, ClipboardList, User, Users } from 'lucide-re
 
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from 'react-native-reanimated';
 
-// Optimize all Touchables in the app
+// ─── Global Touch & Performance Fixes ──────────────────────────────────────
+
+// 1. Remove ALL press delays on TouchableOpacity buttons (Android + iOS)
 TouchableOpacity.defaultProps = TouchableOpacity.defaultProps || {};
 TouchableOpacity.defaultProps.delayPressIn = 0;
+TouchableOpacity.defaultProps.delayPressOut = 0;  // iOS: remove ghost delay on release
 TouchableOpacity.defaultProps.activeOpacity = 0.7;
 
-// Fix touch interception issues in ScrollViews and FlatLists
+// 2. iOS CRITICAL FIX: prevent ScrollView/FlatList from stealing the touch event.
+//    Without this, iOS waits ~350ms to decide if it's a scroll or a tap,
+//    causing buttons to need 3-4 taps before responding.
+TouchableOpacity.defaultProps.cancelsTouchesInView = false;
+
+// 3. Fix keyboard-related touch swallowing in ScrollViews and FlatLists
 ScrollView.defaultProps = ScrollView.defaultProps || {};
 ScrollView.defaultProps.keyboardShouldPersistTaps = 'handled';
+ScrollView.defaultProps.directionalLockEnabled = true;
 FlatList.defaultProps = FlatList.defaultProps || {};
 FlatList.defaultProps.keyboardShouldPersistTaps = 'handled';
+FlatList.defaultProps.directionalLockEnabled = true;
 
-// App Performance Optimizations for large lists
+// 4. FlatList rendering performance
 FlatList.defaultProps.removeClippedSubviews = true;
 FlatList.defaultProps.initialNumToRender = 10;
 FlatList.defaultProps.maxToRenderPerBatch = 10;
@@ -82,7 +92,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
   if (keyboardVisible) return null;
 
   return (
-    <View style={styles.tabBarWrapper} pointerEvents="box-none">
+    <View style={styles.tabBarWrapper}>
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -98,11 +108,13 @@ function CustomTabBar({ state, descriptors, navigation }) {
 
           if (isCenter) {
             return (
-              <View key={route.key} style={styles.centerSlot} pointerEvents="box-none">
+              // No pointerEvents restriction — iOS needs full touch pass-through on raised button
+              <View key={route.key} style={styles.centerSlot}>
                 <TouchableOpacity
                   style={styles.centerBtn}
                   onPress={onPress}
                   activeOpacity={0.85}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Search size={26} color="#FFF" strokeWidth={2.2} />
                 </TouchableOpacity>
@@ -125,6 +137,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
               style={styles.tabItem}
               onPress={onPress}
               activeOpacity={0.75}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             >
               <AnimatedTabIcon focused={isFocused} IconComponent={IconComponent} />
             </TouchableOpacity>
@@ -170,8 +183,13 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
-    height: 80,
+    // Taller wrapper so the raised center button's touch area is fully inside
+    // the parent bounds (iOS clips touches to parent frame by default)
+    height: 110,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    // overflow visible so iOS allows touches on raised portion
+    overflow: 'visible',
   },
   tabBar: {
     flexDirection: 'row',
@@ -187,6 +205,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(142,36,170,0.06)',
+    overflow: 'visible',
   },
   tabItem: {
     flex: 1,
@@ -200,6 +219,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -28, // lifts above the tab bar
+    overflow: 'visible',
   },
   centerBtn: {
     width: 58,

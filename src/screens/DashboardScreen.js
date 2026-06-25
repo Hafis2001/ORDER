@@ -34,7 +34,7 @@ const DashboardScreen = ({ navigation }) => {
           ))}
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} 
           style={styles.settingsButton}
           onPress={() => navigation.navigate('Settings')}
         >

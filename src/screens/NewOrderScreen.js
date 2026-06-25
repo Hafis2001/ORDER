@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   StyleSheet, Text, View, ScrollView, TouchableOpacity,
   Dimensions, TextInput, FlatList, Animated as RNAnimated,
-  ActivityIndicator, Alert, Image
+  ActivityIndicator, Alert, Image, Platform
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScrollToTop } from '@react-navigation/native';
@@ -13,7 +13,7 @@ import ReAnimated, {
 } from 'react-native-reanimated';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { fetchProducts } from '../api/products';
+import { fetchAllProducts } from '../api/products';
 
 const { width } = Dimensions.get('window');
 const GRID_SPACING = 12;
@@ -122,7 +122,7 @@ const BannerItem = React.memo(function BannerItem({ banner, token, navigation, i
         </View>
       )}
       
-      <TouchableOpacity style={styles.slideCTA} onPress={() => navigation.navigate('CategoryProducts', { category: banner.cat || 'All' })}>
+      <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.slideCTA} onPress={() => navigation.navigate('CategoryProducts', { category: banner.cat || 'All' })} activeOpacity={0.7} delayPressIn={0}>
         <Text style={styles.slideCTAText}>Shop Now</Text>
       </TouchableOpacity>
     </View>
@@ -134,7 +134,7 @@ const ProductCard = React.memo(function ProductCard({ item, onPress }) {
 
   return (
     <View style={styles.card}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.cardTouch}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} delayPressIn={0} style={styles.cardTouch}>
         <View style={styles.imgContainer}>
           <Image
             source={{ uri: item.image }}
@@ -158,7 +158,7 @@ const ProductCard = React.memo(function ProductCard({ item, onPress }) {
 const HeaderInteractive = React.memo(function HeaderInteractive({
   insets, user, productCount, searchQuery, setSearchQuery,
   showFilters, setShowFilters, activeCategory, setActiveCategory,
-  categories, banners, loading, navigation, products
+  categories, categoryCards, banners, loading, navigation, products
 }) {
   return (
     <View>
@@ -175,7 +175,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
             <Text style={styles.greetSub}>What are you looking for today?</Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.cartBtn} onPress={() => navigation.navigate('Cart')}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.cartBtn} onPress={() => navigation.navigate('Cart')} activeOpacity={0.7} delayPressIn={0}>
               <ShoppingCart size={18} color="#8E24AA" />
               {productCount > 0 && (
                 <View style={styles.badge}>
@@ -183,7 +183,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutBtn} onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} style={styles.logoutBtn} onPress={() => navigation.navigate('Profile')} activeOpacity={0.7} delayPressIn={0}>
               <User size={20} color="#FFF" />
             </TouchableOpacity>
           </View>
@@ -200,7 +200,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-            <TouchableOpacity onPress={() => setShowFilters(!showFilters)} style={styles.filterIconBtn}>
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => setShowFilters(!showFilters)} style={styles.filterIconBtn} activeOpacity={0.7} delayPressIn={0}>
               {showFilters ? <X size={18} color="#AAA" /> : <Filter size={18} color="#8E24AA" />}
             </TouchableOpacity>
           </View>
@@ -211,10 +211,12 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
           <View style={styles.filterWrap}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               {categories.map(cat => (
-                <TouchableOpacity
+                <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
                   key={cat}
                   style={[styles.filterChip, activeCategory === cat && styles.filterChipActive]}
                   onPress={() => setActiveCategory(cat)}
+                  activeOpacity={0.7}
+                  delayPressIn={0}
                 >
                   <Text style={[styles.filterText, activeCategory === cat && styles.filterTextActive]}>
                     {cat}
@@ -231,10 +233,30 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
         <BannerSlider banners={banners} navigation={navigation} />
       </View>
 
+      {/* Category Horizontal Section */}
+      <View style={styles.categorySection}>
+        <Text style={[styles.secTitle, { paddingHorizontal: 16, marginBottom: 10 }]}>Categories</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
+          {categoryCards?.map(cat => (
+            <TouchableOpacity delayPressIn={0} activeOpacity={0.7}
+              key={cat.name}
+              style={styles.categoryCardRow}
+              
+              onPress={() => navigation.navigate('CategoryProducts', { category: cat.name, products })}
+            >
+              <Image source={{ uri: cat.image }} style={styles.categoryCardImgRow} resizeMode="cover" />
+              <View style={styles.categoryCardOverlayRow}>
+                <Text style={styles.categoryCardTextRow} numberOfLines={2}>{cat.name}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
       {/* Title Section */}
       <View style={styles.secRow}>
-        <Text style={styles.secTitle}>Fresh Products</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('CategoryProducts', { category: 'All', products })}>
+        <Text style={styles.secTitle}>Latest Purchases</Text>
+        <TouchableOpacity delayPressIn={0} activeOpacity={0.7} onPress={() => navigation.navigate('CategoryProducts', { category: 'All', products })} activeOpacity={0.7} delayPressIn={0}>
           <Text style={{ fontSize: 12, fontWeight: '700', color: '#8E24AA' }}>See All</Text>
         </TouchableOpacity>
       </View>
@@ -252,6 +274,7 @@ export default function NewOrderScreen({ navigation }) {
   const { token, user, logout } = useAuth();
   
   const [products, setProducts] = useState([]);
+  const [latestPurchases, setLatestPurchases] = useState([]);
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -286,13 +309,13 @@ export default function NewOrderScreen({ navigation }) {
           setBanners(mappedBanners);
         }
 
-        // Fetch Products
-        const data = await fetchProducts(token, 1);
-        if (data && data.results) {
-          const mapped = data.results.map(p => ({
+        // Fetch Products — all pages
+        const results = await fetchAllProducts(token);
+        if (results && results.length > 0) {
+          const mapped = results.map(p => ({
             id: p.code,
             name: p.name,
-            category: p.product,
+            category: p.department_name,
             brand: p.brand,
             company: p.company,
             weight: '1 Unit',
@@ -303,6 +326,31 @@ export default function NewOrderScreen({ navigation }) {
           
           mapped.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
           setProducts(mapped);
+          
+          // Fetch Orders to get latest purchases
+          let purchasedNames = [];
+          try {
+            const ordersRes = await fetch('https://gold.imcbs.com/api/orders/my/', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (ordersRes.ok) {
+              const ordersData = await ordersRes.json();
+              // Customer filtering is handled implicitly by the API / sorting
+              ordersData.forEach(order => {
+                (order.items || []).forEach(item => {
+                  if (item.product_name) purchasedNames.push(item.product_name);
+                });
+              });
+            }
+          } catch(e) {
+            console.error("Error fetching orders for home:", e);
+          }
+
+          const uniquePurchased = [...new Set(purchasedNames)];
+          const recentProducts = mapped.filter(p => uniquePurchased.includes(p.name)).slice(0, 10);
+          
+          // If no history, fallback to first 10 products
+          setLatestPurchases(recentProducts.length > 0 ? recentProducts : mapped.slice(0, 10));
         }
       } catch (err) {
         console.error("Error loading home data:", err);
@@ -314,16 +362,47 @@ export default function NewOrderScreen({ navigation }) {
     loadData();
   }, [token]);
 
+  const getCategoryImage = (categoryName) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('fruit') || name.includes('veg')) return 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=400';
+    if (name.includes('meat') || name.includes('beef') || name.includes('chicken')) return 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&w=400';
+    if (name.includes('fish') || name.includes('seafood')) return 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?q=80&w=400';
+    if (name.includes('dairy') || name.includes('milk') || name.includes('cheese')) return 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?q=80&w=400';
+    if (name.includes('bakery') || name.includes('bread')) return 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400';
+    if (name.includes('drink') || name.includes('beverage') || name.includes('water')) return 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=400';
+    if (name.includes('snack') || name.includes('chip') || name.includes('biscuit')) return 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=400';
+    return 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400'; // Default mixed groceries
+  };
+
   const categories = useMemo(
     () => ['All', ...new Set(products.map(p => p.category).filter(Boolean))],
     [products]
   );
 
-  const filteredProducts = useMemo(() => products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  }), [products, searchQuery, activeCategory]);
+  const categoryCards = useMemo(() => {
+    const cats = [];
+    const seen = new Set();
+    products.forEach(p => {
+      if (p.category && !seen.has(p.category)) {
+        seen.add(p.category);
+        cats.push({ name: p.category, image: getCategoryImage(p.category) });
+      }
+    });
+    return cats;
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    // If the user searches or uses a category filter, search ALL products.
+    // Otherwise, show only the Latest Purchases (max 10).
+    if (searchQuery || activeCategory !== 'All') {
+      return products.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+        return matchesSearch && matchesCategory;
+      });
+    }
+    return latestPurchases;
+  }, [products, latestPurchases, searchQuery, activeCategory]);
 
   const renderItem = useCallback(({ item }) => (
     <ProductCard
@@ -344,6 +423,7 @@ export default function NewOrderScreen({ navigation }) {
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
       categories={categories}
+      categoryCards={categoryCards}
       banners={banners}
       loading={loading}
       navigation={navigation}
@@ -355,20 +435,23 @@ export default function NewOrderScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlatList initialNumToRender={10} maxToRenderPerBatch={10} windowSize={5} removeClippedSubviews={true}
         ref={flatListRef}
         data={filteredProducts}
         numColumns={2}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={ListHeader}
         renderItem={renderItem}
-        ListFooterComponent={<View style={{ height: insets.bottom + 100 }} />}
-        initialNumToRender={6}
-        maxToRenderPerBatch={6}
+        // iOS: automatically scroll content above keyboard when searching
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        ListFooterComponent={<View style={{ height: insets.bottom + 140 }} />}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
         windowSize={5}
         removeClippedSubviews={true}
       />
@@ -437,6 +520,14 @@ const styles = StyleSheet.create({
   dot: { height: 6, borderRadius: 3 },
   secRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginTop: 14, marginBottom: 8 },
   secTitle: { fontSize: 14, fontWeight: '900', color: '#1A2A3A', letterSpacing: 0.5 },
+  
+  categorySection: { marginTop: 18 },
+  categoryScroll: { paddingHorizontal: 16, gap: 12 },
+  categoryCardRow: { width: 105, height: 105, borderRadius: 16, overflow: 'hidden', backgroundColor: '#EEE' },
+  categoryCardImgRow: { width: '100%', height: '100%' },
+  categoryCardOverlayRow: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', paddingVertical: 6, paddingHorizontal: 4 },
+  categoryCardTextRow: { color: '#FFF', fontSize: 10, fontWeight: '800', textAlign: 'center' },
+  
   card: { width: GRID_ITEM_WIDTH, height: 160, backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.07, shadowRadius: 8 },
   cardTouch: { width: '100%', height: '100%' },
   imgContainer: { width: '100%', flex: 1, backgroundColor: '#F8F9FA' },
