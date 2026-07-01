@@ -244,7 +244,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               
               onPress={() => navigation.navigate('CategoryProducts', { category: cat.name })}
             >
-              <Image source={{ uri: cat.image }} style={styles.categoryCardImgRow} resizeMode="cover" />
+              <Image source={cat.image} style={styles.categoryCardImgRow} resizeMode="cover" />
               <View style={styles.categoryCardOverlayRow}>
                 <Text style={styles.categoryCardTextRow} numberOfLines={2}>{cat.name}</Text>
               </View>
@@ -364,14 +364,14 @@ export default function NewOrderScreen({ navigation }) {
 
   const getCategoryImage = (categoryName) => {
     const name = categoryName.toLowerCase();
-    if (name.includes('fruit') || name.includes('veg')) return 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=400';
-    if (name.includes('meat') || name.includes('beef') || name.includes('chicken')) return 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&w=400';
-    if (name.includes('fish') || name.includes('seafood')) return 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?q=80&w=400';
-    if (name.includes('dairy') || name.includes('milk') || name.includes('cheese')) return 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?q=80&w=400';
-    if (name.includes('bakery') || name.includes('bread')) return 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400';
-    if (name.includes('drink') || name.includes('beverage') || name.includes('water')) return 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=400';
-    if (name.includes('snack') || name.includes('chip') || name.includes('biscuit')) return 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=400';
-    return 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400'; // Default mixed groceries
+    if (name.includes('fruit') || name.includes('veg')) return { uri: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=400' };
+    if (name.includes('meat') || name.includes('beef') || name.includes('chicken')) return { uri: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&w=400' };
+    if (name.includes('fish') || name.includes('seafood')) return { uri: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?q=80&w=400' };
+    if (name.includes('dairy') || name.includes('milk') || name.includes('cheese')) return { uri: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?q=80&w=400' };
+    if (name.includes('bakery') || name.includes('bread')) return { uri: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400' };
+    if (name.includes('drink') || name.includes('beverage') || name.includes('water')) return { uri: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=400' };
+    if (name.includes('snack') || name.includes('chip') || name.includes('biscuit')) return { uri: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=400' };
+    return require('../../assets/image.jpeg'); // Default mixed groceries
   };
 
   const categories = useMemo(

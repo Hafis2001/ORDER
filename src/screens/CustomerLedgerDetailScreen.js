@@ -13,6 +13,7 @@ import {
   NativeModules,
   Modal,
   TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -99,7 +100,7 @@ const JSDatePicker = ({ value, onChange, onClose }) => {
 
   return (
     <Modal transparent animationType="fade" visible={true}>
-      <View style={jsStyles.overlay}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={jsStyles.overlay}>
         <View style={jsStyles.container}>
           <Text style={jsStyles.title}>Select Date</Text>
           <View style={jsStyles.inputRow}>
@@ -142,7 +143,7 @@ const JSDatePicker = ({ value, onChange, onClose }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

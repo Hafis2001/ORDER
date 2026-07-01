@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList, StyleSheet, Keyboard } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -57,6 +57,7 @@ function AnimatedTabIcon({ focused, IconComponent }) {
 // Custom tab bar with raised center Search button
 function CustomTabBar({ state, descriptors, navigation }) {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -67,7 +68,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
   if (keyboardVisible) return null;
 
   return (
-    <View style={styles.tabBarWrapper} pointerEvents="box-none">
+    <View style={[styles.tabBarWrapper, { bottom: 20 + insets.bottom }]} pointerEvents="box-none">
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];

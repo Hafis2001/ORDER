@@ -11,7 +11,9 @@ import {
   Easing,
   Alert,
   TextInput,
-  Modal
+  Modal,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -563,7 +565,7 @@ function OrderNoteInput() {
   ), []);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView style={[styles.container, { paddingTop: insets.top }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {showSuccess && (
         <SuccessOverlay 
           onFinish={() => {
@@ -608,7 +610,7 @@ function OrderNoteInput() {
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

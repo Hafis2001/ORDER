@@ -209,7 +209,7 @@ export default function ItemDetailScreen({ navigation, route }) {
       </ScrollView>
 
       {/* Bottom CTA */}
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
+      <View style={[styles.footer, { bottom: Math.max(insets.bottom, 0), paddingBottom: 10 }]}>
         {isOutOfStock ? (
           <View style={[styles.addBtn, { opacity: 0.6 }]}>
             <View style={[styles.addBtnGrad, { backgroundColor: '#888' }]}>
