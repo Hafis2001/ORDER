@@ -14,9 +14,9 @@ const getStatusColor = (status) => {
 
 const getStatusIcon = (status, color) => {
   const s = status ? status.toLowerCase() : '';
-  if (s.includes('deliver')) return <CheckCircle2 size={14} color={color} />;
-  if (s.includes('process')) return <Clock size={14} color={color} />;
-  return <Package size={14} color={color} />;
+  if (s.includes('deliver')) return <CheckCircle2 pointerEvents="none" size={14} color={color} />;
+  if (s.includes('process')) return <Clock pointerEvents="none" size={14} color={color} />;
+  return <Package pointerEvents="none" size={14} color={color} />;
 };
 
 const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
@@ -27,7 +27,7 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
       {/* Top Header: Date and Status */}
       <View style={styles.cardHeader}>
         <View style={styles.orderDateWrap}>
-          <Clock size={18} color="#8E24AA" />
+          <Clock pointerEvents="none" size={18} color="#8E24AA" />
           <Text style={styles.orderDateText} numberOfLines={1}>{order.date}</Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
@@ -68,12 +68,12 @@ const OrderCard = React.memo(function OrderCard({ order, onViewDetails }) {
       {/* Bottom Footer */}
       <View style={styles.cardFooter}>
         <View style={styles.deliveryInfo}>
-          <Package size={15} color="#888" />
+          <Package pointerEvents="none" size={15} color="#888" />
           <Text style={styles.deliveryText}>Order Summary</Text>
         </View>
         <View style={styles.viewDetails}>
           <Text style={styles.viewDetailsText}>View Items</Text>
-          <ChevronRight size={16} color="#8E24AA" />
+          <ChevronRight pointerEvents="none" size={16} color="#8E24AA" />
         </View>
       </View>
     </TouchableOpacity>
@@ -170,7 +170,7 @@ export default function OrdersScreen({ navigation }) {
         </View>
       ) : orders.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Package size={60} color="#DDD" />
+          <Package pointerEvents="none" size={60} color="#DDD" />
           <Text style={{ marginTop: 10, color: '#999', fontSize: 16 }}>No orders found.</Text>
         </View>
       ) : (
@@ -202,7 +202,7 @@ export default function OrdersScreen({ navigation }) {
                 <Text style={styles.modalSub}>{selectedOrder?.id}</Text>
               </View>
               <TouchableOpacity  activeOpacity={0.7} onPress={() => setSelectedOrder(null)} style={styles.closeBtn}>
-                <X size={24} color="#555" />
+                <X pointerEvents="none" size={24} color="#555" />
               </TouchableOpacity>
             </View>
             

@@ -40,7 +40,7 @@ const TransactionRow = React.memo(function TransactionRow({ item }) {
       <View style={styles.rowBetween}>
         <View style={[styles.rowCenter, { flex: 1 }]}>
           <View style={[styles.iconCircle, { backgroundColor: isCredit ? Colors.error[50] : Colors.success[50] }]}>
-            <Ionicons name={isCredit ? "arrow-down" : "arrow-up"} size={18} color={color} />
+            <Ionicons pointerEvents="none" name={isCredit ? "arrow-down" : "arrow-up"} size={18} color={color} />
           </View>
           <View style={{ flexShrink: 1 }}>
             <Text style={styles.particulars} numberOfLines={1} ellipsizeMode="tail">
@@ -400,7 +400,7 @@ export default function CustomerLedgerDetailScreen() {
               <View style={styles.headerTop}>
                 {ledgerData && (
                   <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    <Ionicons pointerEvents="none" name="arrow-back" size={24} color="#FFF" />
                   </TouchableOpacity>
                 )}
                 <View style={{ flex: 1 }}>
@@ -414,7 +414,7 @@ export default function CustomerLedgerDetailScreen() {
                   </Animated.Text>
                 </View>
                 <TouchableOpacity  activeOpacity={0.7} onPress={refreshAll} style={styles.iconAction}>
-                  <Ionicons name="refresh" size={22} color="#FFF" />
+                  <Ionicons pointerEvents="none" name="refresh" size={22} color="#FFF" />
                 </TouchableOpacity>
               </View>
 
@@ -423,7 +423,7 @@ export default function CustomerLedgerDetailScreen() {
                   onPress={() => handleDatePickerOpen("from")}
                   style={styles.dateButton}
                 >
-                  <Ionicons name="calendar-outline" size={16} color="#FFF" />
+                  <Ionicons pointerEvents="none" name="calendar-outline" size={16} color="#FFF" />
                   <Text style={styles.dateButtonText}>From Date</Text>
                 </TouchableOpacity>
 
@@ -431,7 +431,7 @@ export default function CustomerLedgerDetailScreen() {
                   onPress={() => handleDatePickerOpen("to")}
                   style={styles.dateButton}
                 >
-                  <Ionicons name="calendar" size={16} color="#FFF" />
+                  <Ionicons pointerEvents="none" name="calendar" size={16} color="#FFF" />
                   <Text style={styles.dateButtonText}>To Date</Text>
                 </TouchableOpacity>
               </View>
@@ -505,7 +505,7 @@ export default function CustomerLedgerDetailScreen() {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Ionicons name="documents-outline" size={48} color={Colors.neutral[300]} />
+                <Ionicons pointerEvents="none" name="documents-outline" size={48} color={Colors.neutral[300]} />
                 <Text style={styles.emptyText}>No transactions found.</Text>
               </View>
             }

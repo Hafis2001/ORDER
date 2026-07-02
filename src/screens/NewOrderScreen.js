@@ -176,7 +176,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity  activeOpacity={0.7} style={styles.cartBtn} onPress={() => navigation.navigate('Cart')} activeOpacity={0.7} >
-              <ShoppingCart size={18} color="#8E24AA" />
+              <ShoppingCart pointerEvents="none" size={18} color="#8E24AA" />
               {productCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{productCount > 99 ? '99+' : productCount}</Text>
@@ -184,7 +184,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               )}
             </TouchableOpacity>
             <TouchableOpacity  activeOpacity={0.7} style={styles.logoutBtn} onPress={() => navigation.navigate('Profile')} activeOpacity={0.7} >
-              <User size={20} color="#FFF" />
+              <User pointerEvents="none" size={20} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -192,7 +192,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
         {/* Search row */}
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
-            <Search size={14} color="#AAA" />
+            <Search pointerEvents="none" size={14} color="#AAA" />
             <TextInput
               placeholder="Search groceries"
               placeholderTextColor="#BBB"
@@ -201,7 +201,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               onChangeText={setSearchQuery}
             />
             <TouchableOpacity  activeOpacity={0.7} onPress={() => setShowFilters(!showFilters)} style={styles.filterIconBtn} activeOpacity={0.7} >
-              {showFilters ? <X size={18} color="#AAA" /> : <Filter size={18} color="#8E24AA" />}
+              {showFilters ? <X pointerEvents="none" size={18} color="#AAA" /> : <Filter pointerEvents="none" size={18} color="#8E24AA" />}
             </TouchableOpacity>
           </View>
         </View>

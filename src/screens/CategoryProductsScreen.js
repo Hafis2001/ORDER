@@ -134,7 +134,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
               {inCart ? (
                 <Text style={styles.inCartQtyTxt}>{parseFloat(Number(totalQtyInCart || 0).toFixed(3))}</Text>
               ) : (
-                <Plus size={20} color="#8E24AA" />
+                <Plus pointerEvents="none" size={20} color="#8E24AA" />
               )}
             </TouchableOpacity>
         )}
@@ -155,7 +155,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
               
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
             >
-              <X size={24} color="#333" />
+              <X pointerEvents="none" size={24} color="#333" />
             </TouchableOpacity>
 
             <Text style={styles.addItemModalTitle}>Add {item.name}</Text>
@@ -168,7 +168,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
               
             >
               <Text style={styles.unitDropdownTxt}>Unit: {unit}</Text>
-              <ChevronDown size={14} color="#8E24AA" />
+              <ChevronDown pointerEvents="none" size={14} color="#8E24AA" />
             </TouchableOpacity>
 
             {/* Quantity input */}
@@ -366,13 +366,13 @@ export default function CategoryProductsScreen({ navigation, route }) {
         style={[styles.header, { backgroundColor: '#8E24AA' }]}
       >
         <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <ChevronLeft size={24} color="#FFF" />
+          <ChevronLeft pointerEvents="none" size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Products</Text>
         
         <Animated.View style={cartAnimStyle}>
           <TouchableOpacity  activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
-            <ShoppingCart size={22} color="#FFF" />
+            <ShoppingCart pointerEvents="none" size={22} color="#FFF" />
             {productCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeTxt}>{productCount > 99 ? '99+' : productCount}</Text>
@@ -384,7 +384,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
 
       {/* Search */}
       <View style={styles.searchWrap}>
-        <Search size={16} color="#AAA" />
+        <Search pointerEvents="none" size={16} color="#AAA" />
         <TextInput
           placeholder="Search products..."
           placeholderTextColor="#BBB"

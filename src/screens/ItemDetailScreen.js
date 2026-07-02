@@ -47,11 +47,11 @@ export default function ItemDetailScreen({ navigation, route }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ChevronLeft size={22} color="#333" />
+          <ChevronLeft pointerEvents="none" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Product Detail</Text>
         <TouchableOpacity  activeOpacity={0.7} style={styles.cartHeaderBtn} onPress={() => navigation.navigate('Cart')}>
-          <ShoppingCart size={20} color="#8E24AA" />
+          <ShoppingCart pointerEvents="none" size={20} color="#8E24AA" />
           {productCount > 0 && (
             <View style={styles.badge}><Text style={styles.badgeText}>{productCount > 99 ? '99+' : productCount}</Text></View>
           )}
@@ -103,7 +103,7 @@ export default function ItemDetailScreen({ navigation, route }) {
           {/* Rating */}
           <View style={styles.ratingRow}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} size={13} color={s <= 4 ? '#F7A800' : '#DDD'} fill={s <= 4 ? '#F7A800' : 'none'} />
+              <Star pointerEvents="none" key={s} size={13} color={s <= 4 ? '#F7A800' : '#DDD'} fill={s <= 4 ? '#F7A800' : 'none'} />
             ))}
             <Text style={styles.ratingText}>4.0 (128 reviews)</Text>
           </View>
@@ -121,7 +121,7 @@ export default function ItemDetailScreen({ navigation, route }) {
             onPress={() => setModalVisible(true)}
           >
             <Text style={styles.unitDropdownTxt}>{unit}</Text>
-            <ChevronDown size={20} color="#8E24AA" />
+            <ChevronDown pointerEvents="none" size={20} color="#8E24AA" />
           </TouchableOpacity>
 
           <Modal visible={modalVisible} transparent={true} animationType="fade">
@@ -155,7 +155,7 @@ export default function ItemDetailScreen({ navigation, route }) {
                 if (cur > 0) setQtyText(String(parseFloat((cur - 1).toFixed(3))));
               }}
             >
-              <Minus size={18} color="#8E24AA" />
+              <Minus pointerEvents="none" size={18} color="#8E24AA" />
             </TouchableOpacity>
             <TextInput
               style={styles.qtyTypeInput}
@@ -179,7 +179,7 @@ export default function ItemDetailScreen({ navigation, route }) {
                 setQtyText(String(parseFloat((cur + 1).toFixed(3))));
               }}
             >
-              <Plus size={18} color="#8E24AA" />
+              <Plus pointerEvents="none" size={18} color="#8E24AA" />
             </TouchableOpacity>
           </View>
           {qty > 0 && (
@@ -219,7 +219,7 @@ export default function ItemDetailScreen({ navigation, route }) {
         ) : (
           <TouchableOpacity  activeOpacity={0.7} style={styles.addBtn} onPress={handleAddToCart} >
             <View style={[styles.addBtnGrad, { backgroundColor: '#8E24AA' }]}>
-              <ShoppingCart size={18} color="#FFF" />
+              <ShoppingCart pointerEvents="none" size={18} color="#FFF" />
               <Text style={styles.addBtnText}>Add to Cart</Text>
             </View>
           </TouchableOpacity>

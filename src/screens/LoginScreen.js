@@ -111,7 +111,7 @@ export default function LoginScreen({ navigation }) {
 
               <View style={styles.inputWrapper}>
                 <View style={styles.iconContainer}>
-                  <User size={18} color="#8E24AA" />
+                  <User pointerEvents="none" size={18} color="#8E24AA" />
                 </View>
                 <TextInput
                   style={styles.input}
@@ -127,7 +127,7 @@ export default function LoginScreen({ navigation }) {
 
               <View style={styles.inputWrapper}>
                 <View style={styles.iconContainer}>
-                  <Lock size={18} color="#8E24AA" />
+                  <Lock pointerEvents="none" size={18} color="#8E24AA" />
                 </View>
                 <TextInput
                   style={styles.input}
@@ -143,9 +143,9 @@ export default function LoginScreen({ navigation }) {
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff size={18} color="#8E24AA" />
+                    <EyeOff pointerEvents="none" size={18} color="#8E24AA" />
                   ) : (
-                    <Eye size={18} color="#8E24AA" />
+                    <Eye pointerEvents="none" size={18} color="#8E24AA" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -168,7 +168,7 @@ export default function LoginScreen({ navigation }) {
                   ) : (
                     <>
                       <Text style={styles.loginButtonText}>SIGN IN</Text>
-                      <ArrowRight size={18} color="#FFF" />
+                      <ArrowRight pointerEvents="none" size={18} color="#FFF" />
                     </>
                   )}
                 </View>

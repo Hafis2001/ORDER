@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList, StyleSheet, Keyboard } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
@@ -24,6 +24,7 @@ import CustomerLedgerListScreen from './src/screens/CustomerLedgerListScreen';
 import CustomerLedgerDetailScreen from './src/screens/CustomerLedgerDetailScreen';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
+import NetworkOverlay from './src/components/NetworkOverlay';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,7 +44,7 @@ function AnimatedTabIcon({ focused, IconComponent }) {
 
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-      <Animated.View style={iconStyle}>
+      <Animated.View style={iconStyle} pointerEvents="none">
         <IconComponent
           size={22}
           color={focused ? '#8E24AA' : '#BBAECF'}
@@ -92,7 +93,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
                   activeOpacity={0.85}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Search size={26} color="#FFF" strokeWidth={2.2} />
+                  <Search pointerEvents="none" size={26} color="#FFF" strokeWidth={2.2} />
                 </TouchableOpacity>
               </View>
             );
@@ -216,12 +217,20 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
+  const [appKey, setAppKey] = useState(0);
+
+  const handleReconnect = useCallback(() => {
+    // Force a re-render of the entire navigation stack to reload the page data after network reconnects
+    setAppKey(prev => prev + 1);
+  }, []);
+
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
+      <NetworkOverlay onReconnect={handleReconnect} />
       <AuthProvider>
         <CartProvider>
-          <NavigationContainer theme={AppTheme}>
+          <NavigationContainer theme={AppTheme} key={`nav-${appKey}`}>
             <Stack.Navigator
               initialRouteName="Login"
               screenOptions={{

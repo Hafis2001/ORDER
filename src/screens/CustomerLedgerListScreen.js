@@ -33,20 +33,20 @@ const LedgerCard = React.memo(function LedgerCard({ item, onPress }) {
     >
       <View style={styles.cardHeader}>
         <View style={styles.avatarContainer}>
-          <User size={24} color="#8E24AA" />
+          <User pointerEvents="none" size={24} color="#8E24AA" />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.customerName} numberOfLines={1}>{customerName}</Text>
           <Text style={styles.customerCode}>Code: {customerCode}</Text>
         </View>
-        <ChevronRight size={20} color="#999" />
+        <ChevronRight pointerEvents="none" size={20} color="#999" />
       </View>
       
       <View style={styles.cardDivider} />
       
       <View style={styles.cardFooter}>
         <View style={styles.footerItem}>
-          <FileText size={16} color="#666" />
+          <FileText pointerEvents="none" size={16} color="#666" />
           <Text style={styles.footerText}>{entries.length} Entries</Text>
         </View>
         <View style={styles.balanceContainer}>
@@ -150,7 +150,7 @@ export default function CustomerLedgerListScreen() {
         </View>
       ) : ledgers.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <FileText size={48} color="#CCC" />
+          <FileText pointerEvents="none" size={48} color="#CCC" />
           <Text style={styles.emptyText}>No customers found.</Text>
         </View>
       ) : (

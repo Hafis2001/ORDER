@@ -72,7 +72,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
           />
           {inCart && (
             <View style={styles.inCartBadge}>
-              <ShoppingCart size={10} color="#FFF" />
+              <ShoppingCart pointerEvents="none" size={10} color="#FFF" />
               <Text style={styles.inCartText}>{Number(totalQtyInCart || 0).toFixed(3)}</Text>
             </View>
           )}
@@ -137,10 +137,10 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
           {/* Cancel + Add buttons */}
           <View style={styles.actionRow}>
             <TouchableOpacity  activeOpacity={0.7} style={styles.cancelBtn} onPress={closeInput}>
-              <X size={16} color="#999" />
+              <X pointerEvents="none" size={16} color="#999" />
             </TouchableOpacity>
             <TouchableOpacity  activeOpacity={0.7} style={styles.addBtn} onPress={handleAdd}>
-              <ShoppingCart size={16} color="#FFF" />
+              <ShoppingCart pointerEvents="none" size={16} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -150,7 +150,7 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
           onPress={openInput} 
           
         >
-          {inCart ? <Text style={styles.editBtnTxt}>Edit</Text> : <Plus size={20} color="#FFF" />}
+          {inCart ? <Text style={styles.editBtnTxt}>Edit</Text> : <Plus pointerEvents="none" size={20} color="#FFF" />}
         </TouchableOpacity>
       )}
     </View>
@@ -183,11 +183,11 @@ export default function VegetablesListScreen({ navigation }) {
         style={[styles.header, { backgroundColor: '#8E24AA' }]}
       >
         <TouchableOpacity  activeOpacity={0.7} onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <ChevronLeft size={24} color="#FFF" />
+          <ChevronLeft pointerEvents="none" size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}> Products</Text>
         <TouchableOpacity  activeOpacity={0.7} style={styles.headerBtn} onPress={() => navigation.navigate('Cart')}>
-          <ShoppingCart size={22} color="#FFF" />
+          <ShoppingCart pointerEvents="none" size={22} color="#FFF" />
           {productCount > 0 && (
             <View style={styles.cartBadge}>
               <Text style={styles.cartBadgeTxt}>{productCount > 99 ? '99+' : productCount}</Text>
@@ -198,7 +198,7 @@ export default function VegetablesListScreen({ navigation }) {
 
       {/* Search */}
       <View style={styles.searchWrap}>
-        <Search size={16} color="#AAA" />
+        <Search pointerEvents="none" size={16} color="#AAA" />
         <TextInput
           placeholder="Search products..."
           placeholderTextColor="#BBB"

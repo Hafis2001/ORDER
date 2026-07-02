@@ -45,7 +45,7 @@ const ActionItem = ({ icon: Icon, label, onPress, color = '#333' }) => (
       <Icon size={20} color={color} />
     </View>
     <Text style={[styles.actionLabel, { color }]}>{label}</Text>
-    <ChevronRight size={18} color="#CCC" />
+    <ChevronRight pointerEvents="none" size={18} color="#CCC" />
   </TouchableOpacity>
 );
 
@@ -88,13 +88,13 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.initials}>{getInitials(user?.name)}</Text>
             </View>
             <TouchableOpacity  activeOpacity={0.7} style={styles.editBadge}>
-              <Settings size={14} color="#FFF" />
+              <Settings pointerEvents="none" size={14} color="#FFF" />
             </TouchableOpacity>
           </View>
           
           <Text style={styles.userName}>{user?.name || 'Customer'}</Text>
           <View style={styles.userBadge}>
-            <ShieldCheck size={12} color="#FFF" />
+            <ShieldCheck pointerEvents="none" size={12} color="#FFF" />
             <Text style={styles.userBadgeText}>Verified Customer</Text>
           </View>
         </View>
@@ -110,19 +110,13 @@ export default function ProfileScreen({ navigation }) {
             <InfoRow icon={Building} label="Business Address" value={user?.address} isLast={true} />
           </View>
 
-          {/* Quick Actions */}
-          <View style={[styles.card, { marginTop: 15 }]}>
-            <Text style={styles.cardTitle}>Payments & History</Text>
-            <ActionItem icon={CreditCard} label="Payment Methods" onPress={() => {}} />
-            <ActionItem icon={ShieldCheck} label="Privacy & Security" onPress={() => {}} />
-          </View>
 
           {/* Logout Section */}
           <TouchableOpacity  activeOpacity={0.7} style={styles.logoutBtn} onPress={handleLogout}>
             <View
               style={styles.logoutGradient}
             >
-              <LogOut size={20} color="#FFF" />
+              <LogOut pointerEvents="none" size={20} color="#FFF" />
               <Text style={styles.logoutText}>Sign Out</Text>
             </View>
           </TouchableOpacity>
