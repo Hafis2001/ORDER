@@ -13,11 +13,12 @@ import {
   TextInput,
   Modal,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Keyboard
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ChevronLeft, Trash2, Plus, Minus, ShoppingBag, ClipboardCheck } from 'lucide-react-native';
+import { ChevronLeft, Trash2, Plus, Minus, ShoppingBag, ClipboardCheck, X } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -40,7 +41,7 @@ const CartItemRow = React.memo(({ item, deleteItem, globalUnits = [] }) => {
           <View style={styles.itemHeader}>
             <View>
               <Text style={styles.itemName}>{item.name}</Text>
-              <TouchableOpacity  activeOpacity={0.7} onPress={() => setModalVisible(true)} style={styles.unitDropdown}>
+              <TouchableOpacity  activeOpacity={0.7} onPress={() => { Keyboard.dismiss(); setModalVisible(true); }} style={styles.unitDropdown}>
                 <Text style={styles.unitText}>{item.unit}</Text>
                 <MaterialIcons pointerEvents="none" name="arrow-drop-down" size={16} color="#8E24AA" />
               </TouchableOpacity>

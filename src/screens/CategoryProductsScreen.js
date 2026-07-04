@@ -3,7 +3,7 @@ import {
   StyleSheet, Text, View, FlatList,
   TouchableOpacity, TextInput, Alert, ScrollView,
   ActivityIndicator, Image, Modal, KeyboardAvoidingView,
-  Platform, Dimensions, PanResponder, InteractionManager
+  Platform, Dimensions, PanResponder, InteractionManager, Keyboard
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -165,7 +165,10 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
             {/* Unit Dropdown */}
             <TouchableOpacity  activeOpacity={0.7} 
               style={styles.unitDropdownBtnGrid} 
-              onPress={() => setModalVisible(true)}
+              onPress={() => {
+                Keyboard.dismiss();
+                setModalVisible(true);
+              }}
               activeOpacity={0.7}
               
             >
@@ -215,37 +218,42 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
               </TouchableOpacity>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </Modal>
 
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
-          <View style={styles.modalContent}>
+          {/* Unit Selection Overlay - Now inside the same Modal to fix iOS restriction */}
+          {modalVisible && (
             <TouchableOpacity 
-              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+              activeOpacity={1} 
+              style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', zIndex: 999 }]} 
               onPress={() => setModalVisible(false)}
-              activeOpacity={0.7}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
             >
-              <X pointerEvents="none" size={24} color="#333" />
+              <View style={styles.modalContent}>
+                <TouchableOpacity 
+                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+                  onPress={() => setModalVisible(false)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                >
+                  <X pointerEvents="none" size={24} color="#333" />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Select Unit</Text>
+                {uniqueUnits.map(u => (
+                  <TouchableOpacity  activeOpacity={0.7} 
+                    key={u} 
+                    style={styles.unitOption} 
+                    onPress={() => {
+                      setUnit(u);
+                      const existingQty = getItemQty(item.id, u.toLowerCase());
+                      setQty(existingQty > 0 ? String(existingQty) : '');
+                      setModalVisible(false);
+                    }}
+                  >
+                    <Text style={[styles.unitOptionText, unit === u && styles.unitOptionTextSelected]}>{u}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Select Unit</Text>
-            {modalVisible && uniqueUnits.map(u => (
-              <TouchableOpacity  activeOpacity={0.7} 
-                key={u} 
-                style={styles.unitOption} 
-                onPress={() => {
-                  setUnit(u);
-                  const existingQty = getItemQty(item.id, u.toLowerCase());
-                  setQty(existingQty > 0 ? String(existingQty) : '');
-                  setModalVisible(false);
-                }}
-              >
-                <Text style={[styles.unitOptionText, unit === u && styles.unitOptionTextSelected]}>{u}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
+          )}
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

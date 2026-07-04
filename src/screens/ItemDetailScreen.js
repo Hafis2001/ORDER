@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Dimensions,
-  TextInput, Alert, KeyboardAvoidingView, Platform, Modal
+  TextInput, Alert, KeyboardAvoidingView, Platform, Modal, Keyboard
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -116,7 +116,10 @@ export default function ItemDetailScreen({ navigation, route }) {
           <Text style={styles.unitLabel}>Select unit</Text>
           <TouchableOpacity  activeOpacity={0.7} 
             style={styles.unitDropdownBtn} 
-            onPress={() => setModalVisible(true)}
+            onPress={() => {
+              Keyboard.dismiss();
+              setModalVisible(true);
+            }}
           >
             <Text style={styles.unitDropdownTxt}>{unit}</Text>
             <ChevronDown pointerEvents="none" size={20} color="#8E24AA" />
