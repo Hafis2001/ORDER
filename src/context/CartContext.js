@@ -8,6 +8,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartRemarks, setCartRemarks] = useState('');
   const [clearCount, setClearCount] = useState(0);
+  const [globalUnits, setGlobalUnits] = useState([]);
 
   // Add item or increment quantity if exists
   const addToCart = (product, unit = 'kg', amount = 1) => {
@@ -158,7 +159,9 @@ export const CartProvider = ({ children }) => {
     cartRemarks,
     setCartRemarks,
     clearCount,
-  }), [cartItems, totalItems, totalPrice, productCount, cartRemarks, clearCount]);
+    globalUnits,
+    setGlobalUnits,
+  }), [cartItems, totalItems, totalPrice, productCount, cartRemarks, clearCount, globalUnits]);
 
   return (
     <CartContext.Provider value={value}>

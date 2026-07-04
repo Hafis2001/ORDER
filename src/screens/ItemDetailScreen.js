@@ -6,18 +6,16 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageViewer from 'react-native-image-zoom-viewer';
 
-import { ChevronLeft, ShoppingCart, Plus, Minus, Star, ChevronDown } from 'lucide-react-native';
+import { ChevronLeft, ShoppingCart, Plus, Minus, Star, ChevronDown, X } from 'lucide-react-native';
 import { useCart } from '../context/CartContext';
 
 const { width } = Dimensions.get('window');
 
-const UNITS = ['CTN', 'KG', 'BAG', 'TRY', 'PC', 'BOX', 'BDL', 'PKT'];
-
 export default function ItemDetailScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const { item } = route.params;
-  const { getItemQty, setItemQty, productCount } = useCart();
-  const [unit, setUnit] = useState('KG');
+  const { getItemQty, setItemQty, productCount, globalUnits = [] } = useCart();
+  const [unit, setUnit] = useState(item.unit || (globalUnits.length > 0 ? globalUnits[0] : ''));
   const [qtyText, setQtyText] = useState('');
   const [remarks, setRemarks] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -127,8 +125,16 @@ export default function ItemDetailScreen({ navigation, route }) {
           <Modal visible={modalVisible} transparent={true} animationType="fade">
             <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
               <View style={styles.modalContent}>
+                <TouchableOpacity 
+                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+                  onPress={() => setModalVisible(false)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                >
+                  <X pointerEvents="none" size={24} color="#333" />
+                </TouchableOpacity>
                 <Text style={styles.modalTitle}>Select Unit</Text>
-                {UNITS.map(u => (
+                {[...new Set(item.unit ? [item.unit, ...globalUnits] : globalUnits)].map(u => (
                   <TouchableOpacity  activeOpacity={0.7} 
                     key={u} 
                     style={styles.unitOption} 

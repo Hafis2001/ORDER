@@ -213,7 +213,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
               {categories.map(cat => (
                 <TouchableOpacity  activeOpacity={0.7}
                   key={cat}
-                  style={[styles.filterChip, activeCategory === cat && styles.filterChipActive]}
+                  style={[styles.filterChip, activeCategory === cat && styles.filterChipActive, { marginRight: 8 }]}
                   onPress={() => setActiveCategory(cat)}
                   activeOpacity={0.7}
                   
@@ -240,7 +240,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
           {categoryCards?.map(cat => (
             <TouchableOpacity  activeOpacity={0.7}
               key={cat.name}
-              style={styles.categoryCardRow}
+              style={[styles.categoryCardRow, { marginRight: 12 }]}
               
               onPress={() => navigation.navigate('CategoryProducts', { category: cat.name })}
             >
@@ -270,7 +270,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
 
 export default function NewOrderScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { productCount } = useCart();
+  const { productCount, setGlobalUnits } = useCart();
   const { token, user, logout } = useAuth();
   
   const [products, setProducts] = useState([]);
@@ -322,6 +322,7 @@ export default function NewOrderScreen({ navigation }) {
             price: '0.00',
             image: p.product_image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400',
             isInStock: p.is_in_stock,
+            unit: p.unit,
           }));
           
           mapped.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -362,22 +363,23 @@ export default function NewOrderScreen({ navigation }) {
     loadData();
   }, [token]);
 
-  const getCategoryImage = (categoryName) => {
-    const name = categoryName.toLowerCase();
-    if (name.includes('fruit') || name.includes('veg')) return { uri: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=400' };
-    if (name.includes('meat') || name.includes('beef') || name.includes('chicken')) return { uri: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?q=80&w=400' };
-    if (name.includes('fish') || name.includes('seafood')) return { uri: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?q=80&w=400' };
-    if (name.includes('dairy') || name.includes('milk') || name.includes('cheese')) return { uri: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?q=80&w=400' };
-    if (name.includes('bakery') || name.includes('bread')) return { uri: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400' };
-    if (name.includes('drink') || name.includes('beverage') || name.includes('water')) return { uri: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=400' };
-    if (name.includes('snack') || name.includes('chip') || name.includes('biscuit')) return { uri: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=400' };
-    return require('../../assets/image.jpeg'); // Default mixed groceries
-  };
+
 
   const categories = useMemo(
     () => ['All', ...new Set(products.map(p => p.category).filter(Boolean))],
     [products]
   );
+
+  const allUnits = useMemo(
+    () => [...new Set(products.map(p => p.unit).filter(Boolean))],
+    [products]
+  );
+
+  useEffect(() => {
+    if (allUnits.length > 0) {
+      setGlobalUnits(allUnits);
+    }
+  }, [allUnits, setGlobalUnits]);
 
   const categoryCards = useMemo(() => {
     const cats = [];
@@ -385,7 +387,18 @@ export default function NewOrderScreen({ navigation }) {
     products.forEach(p => {
       if (p.category && !seen.has(p.category)) {
         seen.add(p.category);
-        cats.push({ name: p.category, image: getCategoryImage(p.category) });
+        
+        // Find the first product in this category that has an actual API image
+        const firstProductWithImage = products.find(
+          prod => prod.category === p.category && prod.image && !prod.image.includes('unsplash.com')
+        );
+        
+        // Use that image, otherwise default to the company logo
+        const imageToUse = firstProductWithImage 
+          ? { uri: firstProductWithImage.image } 
+          : require('../../assets/image.jpeg');
+
+        cats.push({ name: p.category, image: imageToUse });
       }
     });
     return cats;
@@ -491,7 +504,7 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, marginLeft: 7, fontSize: 12, color: '#333' },
   filterIconBtn: { padding: 4 },
   filterWrap: { marginTop: 12, marginBottom: 4 },
-  filterScroll: { paddingHorizontal: 4, gap: 8 },
+  filterScroll: { paddingHorizontal: 4 },
   filterChip: {
     paddingHorizontal: 14, paddingVertical: 6,
     backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 16,
@@ -522,7 +535,7 @@ const styles = StyleSheet.create({
   secTitle: { fontSize: 14, fontWeight: '900', color: '#1A2A3A', letterSpacing: 0.5 },
   
   categorySection: { marginTop: 18 },
-  categoryScroll: { paddingHorizontal: 16, gap: 12 },
+  categoryScroll: { paddingHorizontal: 16 },
   categoryCardRow: { width: 105, height: 105, borderRadius: 16, overflow: 'hidden', backgroundColor: '#EEE' },
   categoryCardImgRow: { width: '100%', height: '100%' },
   categoryCardOverlayRow: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', paddingVertical: 6, paddingHorizontal: 4 },

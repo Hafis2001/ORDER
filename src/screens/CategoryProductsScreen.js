@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   StyleSheet, Text, View, FlatList,
   TouchableOpacity, TextInput, Alert, ScrollView,
@@ -19,16 +19,18 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchAllProducts } from '../api/products';
 
-const UNITS = ['CTN', 'KG', 'BAG', 'TRY', 'PC', 'BOX', 'BDL', 'PKT'];
-
 const { width } = Dimensions.get('window');
 const GRID_SPACING = 14;
 const CARD_WIDTH = (width - (GRID_SPACING * 3)) / 2;
 
 const ItemRow = React.memo(function ItemRow({ item, onPress }) {
-  const { setItemQty, getItemQty, isProductInCart, getProductTotalQty, cartItems } = useCart();
+  const { setItemQty, getItemQty, isProductInCart, getProductTotalQty, cartItems, globalUnits = [] } = useCart();
   const [inputOpen, setInputOpen] = useState(false);
-  const [unit, setUnit] = useState('KG');
+  const [unit, setUnit] = useState(item.unit || (globalUnits?.length > 0 ? globalUnits[0] : ''));
+  
+  const uniqueUnits = useMemo(() => {
+    return [...new Set(item.unit ? [item.unit, ...(globalUnits || [])] : (globalUnits || []))];
+  }, [item.unit, globalUnits]);
   const [modalVisible, setModalVisible] = useState(false);
   const [qty, setQty] = useState('');
   const [remarks, setRemarks] = useState('');
@@ -219,8 +221,16 @@ const ItemRow = React.memo(function ItemRow({ item, onPress }) {
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
+            <TouchableOpacity 
+              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+              onPress={() => setModalVisible(false)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <X pointerEvents="none" size={24} color="#333" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>Select Unit</Text>
-            {UNITS.map(u => (
+            {modalVisible && uniqueUnits.map(u => (
               <TouchableOpacity  activeOpacity={0.7} 
                 key={u} 
                 style={styles.unitOption} 
@@ -311,6 +321,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
             price: '0.00',
             image: imageUrl,
             isInStock: p.is_in_stock,
+            unit: p.unit,
           };
         });
         
@@ -323,8 +334,9 @@ export default function CategoryProductsScreen({ navigation, route }) {
     loadProducts();
   }, [token]);
 
-  // Extract unique categories
+  // Extract unique categories and units
   const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+  const allUnits = [...new Set(products.map(p => p.unit).filter(Boolean))];
 
   // If initialCategory is not in the list, set back to 'All'
   useEffect(() => {
@@ -401,7 +413,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
           {categories.map(cat => (
             <TouchableOpacity  activeOpacity={0.7}
               key={cat}
-              style={[styles.filterChip, activeCategory === cat && styles.filterChipActive]}
+              style={[styles.filterChip, activeCategory === cat && styles.filterChipActive, { marginRight: 20 }]}
               onPress={() => handleCategoryChange(cat)}
               activeOpacity={0.7}
               
@@ -479,7 +491,7 @@ const styles = StyleSheet.create({
 
   // Filters
   filterWrap: { marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  filterScroll: { paddingHorizontal: 14, gap: 20 },
+  filterScroll: { paddingHorizontal: 14 },
   filterChip: {
     paddingHorizontal: 4, paddingVertical: 12,
     borderBottomWidth: 2, borderBottomColor: 'transparent',

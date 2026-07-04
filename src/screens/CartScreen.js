@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -24,11 +24,13 @@ import { useAuth } from '../context/AuthContext';
 
 // --- Animated Components ---
 
-const UNITS = ['CTN', 'KG', 'BAG', 'TRY', 'PC', 'BOX', 'BDL', 'PKT'];
-
-const CartItemRow = React.memo(({ item, deleteItem }) => {
+const CartItemRow = React.memo(({ item, deleteItem, globalUnits = [] }) => {
   const { updateItemUnit } = useCart();
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const uniqueUnits = useMemo(() => {
+    return [...new Set(item.unit ? [item.unit, ...globalUnits] : globalUnits)];
+  }, [item.unit, globalUnits]);
 
   return (
     <>
@@ -60,8 +62,16 @@ const CartItemRow = React.memo(({ item, deleteItem }) => {
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         <TouchableOpacity  activeOpacity={0.7} style={styles.modalOverlay}  onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
+            <TouchableOpacity 
+              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 4 }} 
+              onPress={() => setModalVisible(false)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <X pointerEvents="none" size={24} color="#333" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>Select Unit</Text>
-            {UNITS.map(u => (
+            {modalVisible && uniqueUnits.map(u => (
               <TouchableOpacity  activeOpacity={0.7} 
                 key={u} 
                 style={styles.unitOption} 
@@ -469,7 +479,7 @@ function SuccessOverlay({ onFinish, itemsDesc }) {
 
 export default function CartScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice, cartRemarks, setCartRemarks, clearCount } = useCart();
+  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice, cartRemarks, setCartRemarks, clearCount, globalUnits } = useCart();
   const { token } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -480,16 +490,29 @@ export default function CartScreen({ navigation }) {
     }
 
     try {
+      // Map API typos to valid backend choices (based on original hardcoded list)
+      const backendUnitMap = {
+        'bndl': 'bdl',
+        'tray': 'try',
+        'pcs': 'pc',
+        'cnt': 'ctn',
+        'nos': 'pc',
+        'role': 'pc'
+      };
+
       const payload = {
         cart_remarks: cartRemarks || '',
-        items: cartItems.map(item => ({
-          product_code: item.id,
-          product_name: item.name,
-          product_brand: item.brand || '',
-          quantity: item.qty,
-          unit: item.unit.toLowerCase(),   // server expects lowercase: ctn, kg, bag…
-          remarks: item.remarks || '',
-        }))
+        items: cartItems.map(item => {
+          const rawUnit = item.unit.toLowerCase();
+          return {
+            product_code: item.id,
+            product_name: item.name,
+            product_brand: item.brand || '',
+            quantity: item.qty,
+            unit: backendUnitMap[rawUnit] || rawUnit,
+            remarks: item.remarks || '',
+          };
+        })
       };
 
       const response = await fetch('https://gold.imcbs.com/api/orders/place-batch/', {
@@ -516,8 +539,8 @@ export default function CartScreen({ navigation }) {
   };
 
   const renderCartItem = useCallback(({ item }) => (
-    <CartItemRow item={item} deleteItem={deleteItem} />
-  ), [deleteItem]);
+    <CartItemRow item={item} deleteItem={deleteItem} globalUnits={globalUnits} />
+  ), [deleteItem, globalUnits]);
 
   const keyExtractor = useCallback(item => item.cartKey, []);
 
