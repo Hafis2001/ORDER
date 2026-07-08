@@ -24,13 +24,16 @@ const GRID_SPACING = 14;
 const CARD_WIDTH = (width - (GRID_SPACING * 3)) / 2;
 
 const ItemRow = React.memo(function ItemRow({ item, onPress }) {
-  const { setItemQty, getItemQty, isProductInCart, getProductTotalQty, cartItems, globalUnits = [] } = useCart();
+  const { setItemQty, getItemQty, isProductInCart, getProductTotalQty, cartItems } = useCart();
   const [inputOpen, setInputOpen] = useState(false);
-  const [unit, setUnit] = useState(item.unit || (globalUnits?.length > 0 ? globalUnits[0] : ''));
+  const [unit, setUnit] = useState(item.unit || '');
   
   const uniqueUnits = useMemo(() => {
-    return [...new Set(item.unit ? [item.unit, ...(globalUnits || [])] : (globalUnits || []))];
-  }, [item.unit, globalUnits]);
+    const units = item.available_units && item.available_units.length > 0
+      ? item.available_units
+      : (item.unit ? [item.unit] : []);
+    return [...new Set(units)];
+  }, [item.available_units, item.unit]);
   const [modalVisible, setModalVisible] = useState(false);
   const [qty, setQty] = useState('');
   const [remarks, setRemarks] = useState('');
@@ -330,6 +333,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
             image: imageUrl,
             isInStock: p.is_in_stock,
             unit: p.unit,
+            available_units: p.available_units || [],
           };
         });
         

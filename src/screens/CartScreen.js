@@ -25,13 +25,16 @@ import { useAuth } from '../context/AuthContext';
 
 // --- Animated Components ---
 
-const CartItemRow = React.memo(({ item, deleteItem, globalUnits = [] }) => {
+const CartItemRow = React.memo(({ item, deleteItem }) => {
   const { updateItemUnit } = useCart();
   const [modalVisible, setModalVisible] = useState(false);
   
   const uniqueUnits = useMemo(() => {
-    return [...new Set(item.unit ? [item.unit, ...globalUnits] : globalUnits)];
-  }, [item.unit, globalUnits]);
+    const units = item.available_units && item.available_units.length > 0
+      ? item.available_units
+      : (item.unit ? [item.unit] : []);
+    return [...new Set(units)];
+  }, [item.available_units, item.unit]);
 
   return (
     <>
@@ -540,8 +543,8 @@ export default function CartScreen({ navigation }) {
   };
 
   const renderCartItem = useCallback(({ item }) => (
-    <CartItemRow item={item} deleteItem={deleteItem} globalUnits={globalUnits} />
-  ), [deleteItem, globalUnits]);
+    <CartItemRow item={item} deleteItem={deleteItem} />
+  ), [deleteItem]);
 
   const keyExtractor = useCallback(item => item.cartKey, []);
 
