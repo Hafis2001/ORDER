@@ -14,8 +14,8 @@ const { width } = Dimensions.get('window');
 export default function ItemDetailScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const { item } = route.params;
-  const { getItemQty, setItemQty, productCount, globalUnits = [] } = useCart();
-  const [unit, setUnit] = useState(item.unit || (globalUnits.length > 0 ? globalUnits[0] : ''));
+  const { getItemQty, setItemQty, productCount } = useCart();
+  const [unit, setUnit] = useState(item.unit || '');
   const [qtyText, setQtyText] = useState('');
   const [remarks, setRemarks] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -137,7 +137,11 @@ export default function ItemDetailScreen({ navigation, route }) {
                   <X pointerEvents="none" size={24} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.modalTitle}>Select Unit</Text>
-                {[...new Set(item.unit ? [item.unit, ...globalUnits] : globalUnits)].map(u => (
+                {[...new Set(
+                  item.available_units && item.available_units.length > 0
+                    ? item.available_units
+                    : (item.unit ? [item.unit] : [])
+                )].map(u => (
                   <TouchableOpacity  activeOpacity={0.7} 
                     key={u} 
                     style={styles.unitOption} 

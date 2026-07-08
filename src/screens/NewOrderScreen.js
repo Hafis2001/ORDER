@@ -270,7 +270,7 @@ const HeaderInteractive = React.memo(function HeaderInteractive({
 
 export default function NewOrderScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { productCount, setGlobalUnits } = useCart();
+  const { productCount } = useCart();
   const { token, user, logout } = useAuth();
   
   const [products, setProducts] = useState([]);
@@ -323,6 +323,7 @@ export default function NewOrderScreen({ navigation }) {
             image: p.product_image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400',
             isInStock: p.is_in_stock,
             unit: p.unit,
+            available_units: p.available_units || [],
           }));
           
           mapped.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -370,16 +371,6 @@ export default function NewOrderScreen({ navigation }) {
     [products]
   );
 
-  const allUnits = useMemo(
-    () => [...new Set(products.map(p => p.unit).filter(Boolean))],
-    [products]
-  );
-
-  useEffect(() => {
-    if (allUnits.length > 0) {
-      setGlobalUnits(allUnits);
-    }
-  }, [allUnits, setGlobalUnits]);
 
   const categoryCards = useMemo(() => {
     const cats = [];

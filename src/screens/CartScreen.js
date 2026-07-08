@@ -483,7 +483,7 @@ function SuccessOverlay({ onFinish, itemsDesc }) {
 
 export default function CartScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice, cartRemarks, setCartRemarks, clearCount, globalUnits } = useCart();
+  const { cartItems, addToCart, removeFromCart, deleteItem, clearCart, totalItems, totalPrice, cartRemarks, setCartRemarks, clearCount } = useCart();
   const { token } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
 
